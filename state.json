@@ -1,12 +1,12 @@
 {
   "version": 1,
   "created_at": "2026-10-25T14:26:53+00:00",
-  "last_check_at": "2026-10-25T14:28:30+00:00",
-  "last_success_at": "2026-10-25T14:28:30+00:00",
+  "last_check_at": "2026-10-25T22:12:37+00:00",
+  "last_success_at": "2026-10-25T22:12:37+00:00",
   "last_digest_at": "2026-10-25T14:28:30+00:00",
   "last_alert_at": {},
   "stats": {
-    "runs": 1,
+    "runs": 2,
     "digests": 0,
     "alerts": 0,
     "failures": 0
@@ -33,5 +33,17 @@
   "alerted": {},
   "first_run_done": true,
   "paused": false,
-  "last_snapshot": {}
+  "last_snapshot": {
+    "positions": 16,
+    "awards": 0,
+    "top_positions": [
+      "PhD fellowship(s) in Human-computer Interaction",
+      "PhD Programme in Accounting and Finance",
+      "PhD Studentships in Business & Management",
+      "PhD Position in Entrepreneurship, AI, and Labor Market Disruption",
+      "PhD scholarship in Auditing"
+    ],
+    "top_awards": [],
+    "checked_at": "2026-10-25T22:12:37.890198+00:00"
+  }
 }
