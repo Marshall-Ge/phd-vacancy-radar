@@ -31,6 +31,7 @@ class AttachmentTests(unittest.TestCase):
     def test_csv_has_bom_and_rows(self):
         positions, awards = sample_data()
         cfg = load_config("config.toml")
+        cfg.monitor.show_funding = True
         data = build_csv(cfg, positions, awards)
         self.assertTrue(data.startswith(b"\xef\xbb\xbf"))
         rows = list(csv.reader(io.StringIO(data.decode("utf-8-sig"))))

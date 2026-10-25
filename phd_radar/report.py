@@ -52,8 +52,10 @@ def _groups(cfg: Config, positions: list[Position], awards: list[Award]):
     return [(s, *grouped[s.key]) for s in sections]
 
 
-def _count_text(positions: list[Position], awards: list[Award]) -> str:
-    return f"项目 {len(positions)} 个 · funding {len(awards)} 个"
+def _count_text(cfg: Config, positions: list[Position], awards: list[Award]) -> str:
+    if cfg.monitor.show_funding:
+        return f"项目 {len(positions)} 个 · funding {len(awards)} 个"
+    return f"项目 {len(positions)} 个"
 
 
 def render_test(cfg: Config, now: datetime) -> tuple[str, str, str]:
@@ -90,7 +92,7 @@ def render_alert(cfg: Config, positions: list[Position], awards: list[Award], no
     html = _wrap(
         cfg,
         title="发现新项目 / funding",
-        subtitle=_count_text(positions, awards),
+        subtitle=_count_text(cfg, positions, awards),
         intro="下面按 A/B/C/D 四个板块整理；点标题即可跳转原始页面。",
         positions=positions,
         awards=awards,
@@ -112,19 +114,28 @@ def render_digest(
 ) -> tuple[str, str, str]:
     total = len(positions) + len(awards)
     if startup:
-        subject = f"[PhD Radar] 监控已启动（基线：{len(positions)} 个项目 / {len(awards)} 个 funding）"
+        subject = (
+            f"[PhD Radar] 监控已启动（基线：{len(positions)} 个项目 / {len(awards)} 个 funding）"
+            if cfg.monitor.show_funding
+            else f"[PhD Radar] 监控已启动（基线：{len(positions)} 个项目）"
+        )
         intro = (
-            "监控已经跑起来了。我已经把当前项目和 funding 做了基线记录；"
-            "之后只要有新项目，会立刻单独发邮件；每 5 天再发一次汇总。"
+            "监控已经跑起来了。我已经把当前项目做了基线记录；"
+            + ("同时也记录了 funding 支撑线索；" if cfg.monitor.show_funding else "")
+            + "之后只要有新项目，会立刻单独发邮件；每 5 天再发一次汇总。"
         )
     elif total == 0:
         subject = "[PhD Radar] 本期无新增（监控正常）"
         intro = "过去 5 天没有发现新的匹配项目或 funding。监控仍在正常运行。"
     else:
-        subject = f"[PhD Radar] 5 天汇总：{len(positions)} 个新项目，{len(awards)} 个新 funding"
+        subject = (
+            f"[PhD Radar] 5 天汇总：{len(positions)} 个新项目，{len(awards)} 个新 funding"
+            if cfg.monitor.show_funding
+            else f"[PhD Radar] 5 天汇总：{len(positions)} 个新项目"
+        )
         intro = (
             "这是过去 5 天的新增汇总。A/B/C/D 四个板块只列项目；"
-            "funding 作为支撑线索放在最后，完整清单见附件。"
+            + ("funding 作为支撑线索放在最后，完整清单见附件。" if cfg.monitor.show_funding else "本期不显示 funding，完整清单见附件。")
         )
 
     next_at = _next_digest(cfg, now)
@@ -147,7 +158,7 @@ def render_digest(
     html = _wrap(
         cfg,
         title="5 天汇总" if not startup else "监控已启动",
-        subtitle=_count_text(positions, awards),
+        subtitle=_count_text(cfg, positions, awards),
         intro=intro,
         positions=positions,
         awards=awards,
@@ -203,11 +214,11 @@ def _section_text(
             if len(sec_positions) > detail_limit:
                 for pos in sec_positions[detail_limit:]:
                     lines.append(f"- {pos.title}｜{pos.institution} · {pos.country}｜{pos.url}")
-        if sec_awards:
+        if sec_awards and cfg.monitor.show_funding:
             lines.append(f"  另有 {len(sec_awards)} 条相关 funding 线索，见下方「支撑线索」/附件。")
         lines.append("")
 
-    if awards:
+    if awards and cfg.monitor.show_funding:
         lines.append("【支撑线索：funding / PI（不是岗位，供找导师参考）】")
         for award in awards[: cfg.monitor.funding_display_limit]:
             lines.extend(_award_text(award))
@@ -298,7 +309,7 @@ def _wrap(
 
 
 def _funding_block(cfg: Config, awards: list[Award]) -> str:
-    if not awards:
+    if not awards or not cfg.monitor.show_funding:
         return ""
     limit = cfg.monitor.funding_display_limit
     cards = "".join(_award_card(a) for a in awards[:limit])
@@ -444,9 +455,10 @@ def _ordered_rows(cfg: Config, positions: list[Position], awards: list[Award]):
     for section, sec_positions, _ in groups:
         for pos in sec_positions:
             rows.append(("position", section, pos))
-    for section, _, sec_awards in groups:
-        for award in sec_awards:
-            rows.append(("award", section, award))
+    if cfg.monitor.show_funding:
+        for section, _, sec_awards in groups:
+            for award in sec_awards:
+                rows.append(("award", section, award))
     return rows
 
 

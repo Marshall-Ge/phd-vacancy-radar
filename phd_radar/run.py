@@ -27,6 +27,9 @@ def collect(cfg: Config) -> Batch:
     for source_cfg in cfg.sources:
         if not source_cfg.enabled:
             continue
+        if not cfg.monitor.show_funding and source_cfg.type in {"gepris", "nwo", "ukri"}:
+            log.info("skip funding source %s (show_funding=false)", source_cfg.name)
+            continue
         try:
             source = build_source(source_cfg, fetcher, cfg.profile)
             result = source.collect()
@@ -160,8 +163,8 @@ def run(args: argparse.Namespace) -> int:
     if is_new or not state.first_run_done:
         state.first_run_done = True
         if cfg.monitor.startup_email:
-            top_positions = [p for p in positions if p.score > 0][: cfg.monitor.max_items_per_email]
-            top_awards = [a for a in awards if a.score > 0][: cfg.monitor.max_items_per_email]
+            top_positions = [p for p in positions if p.score > 0]
+            top_awards = [a for a in awards if a.score > 0] if cfg.monitor.show_funding else []
             subject, text, html = render_digest(cfg, top_positions, top_awards, state, now, startup=True)
             if args.dry_run:
                 _preview(subject, text)
@@ -184,7 +187,7 @@ def run(args: argparse.Namespace) -> int:
 
     # 立即告警：新项目 / 新 funding 达到阈值
     # 直招优先：即时告警只发学校/招聘页的项目，funding 只进 5 天汇总。
-    alert_positions = [p for p in new_positions if p.score >= cfg.monitor.alert_score][: cfg.monitor.max_items_per_email]
+    alert_positions = [p for p in new_positions if p.score >= cfg.monitor.alert_score]
     alert_awards: list = []
 
     digest_due = _digest_due(cfg, state, now) or args.mode == "digest"
@@ -212,10 +215,12 @@ def run(args: argparse.Namespace) -> int:
         # 不再因为「已提醒」而排除；上限只用于防止极端刷屏。
         digest_positions = [
             p for p in positions if (state.first_seen("position", p.id) or now) >= since
-        ][: cfg.monitor.digest_max_items]
-        digest_awards = [
-            a for a in awards if (state.first_seen("award", a.id) or now) >= since
-        ][: cfg.monitor.digest_max_items]
+        ]
+        digest_awards = (
+            [a for a in awards if (state.first_seen("award", a.id) or now) >= since]
+            if cfg.monitor.show_funding
+            else []
+        )
 
         subject, text, html = render_digest(cfg, digest_positions, digest_awards, state, now)
         if args.dry_run:

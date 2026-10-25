@@ -4,10 +4,10 @@
 
 > 带薪博士项目的前提是「导师已经有 funding」。所以除了刷招聘网站，还要**反着找**：先盯 ERC / DFG / NWO 等新获 funding 的项目和 PI，再去 PI 的团队主页找项目。
 
-- **有新项目 / 新 funding** → 立即发邮件；
+- **有新项目** → 立即发邮件（默认只关注项目，funding 隐藏）；
 - **每 5 天** → 发一次汇总（即使没有新增也发，证明监控还活着）；
 - 支持 **1–2 个收件邮箱**；
-- 邮件和 CSV 都按 **A / B / C / D 四个板块**划分；
+- 邮件和 CSV 都按 **A / B / C / D 四个板块**划分，项目数量不设上限；
 - 5 天汇总可带 **CSV / HTML 附件**（完整清单，Excel 直接打开）；
 - 跑在 GitHub Actions 云端，不依赖你的电脑和本地网络。
 
@@ -51,11 +51,13 @@
 | **Copenhagen Business School** | 丹麦 | PhD / scholarship 项目 | 招聘页 HTML |
 | **University of Groningen** | 荷兰 | PhD / promovendus 项目 | 招聘页 HTML |
 | **Vrije Universiteit Amsterdam** | 荷兰 | PhD / promovendus 项目 | 招聘页 HTML |
-| **GEPRIS (DFG)** | 德国 | 当前在研项目、PI、机构、项目类型 | 前端检索接口 |
-| **NWO** | 荷兰 | 已获 funding 的项目、PI、机构、funding 计划 | 官方 NWOpen API |
-| **UKRI GtR** | 英国 | 已获 funding 的项目、机构、funding 方 | 官方 API |
+| **GEPRIS (DFG)** | 德国 | 在研项目、PI、机构（默认隐藏） | 前端检索接口 |
+| **NWO** | 荷兰 | 已获 funding 的项目、PI（默认隐藏） | 官方 NWOpen API |
+| **UKRI GtR** | 英国 | 已获 funding 的项目（默认隐藏） | 官方 API |
 
 搜索词已经按新关键词库更新：定量营销、消费者分析、AI 营销、数据驱动决策、商业分析、信息系统、数字化转型等。
+
+> `show_funding = false`（默认）时，GEPRIS / NWO / UKRI 这三个 funding 源**不抓取、不进邮件、不进 CSV**，只跑项目源。想让它们作为「支撑线索」出现，把 `show_funding` 改成 `true`。
 
 ### 手动入口（邮件底部常驻）
 
@@ -68,7 +70,8 @@ EURAXESS、FindAPhD、Academic Positions、LinkedIn Jobs、ERC 项目库、DFF�
 - 标题必须命中 A/B/C/D 任一板块的关键词，否则直接丢弃；
 - 命中关键词越多、方法越匹配、国家越优先、越新、越有薪资/合同信息，内部排序越靠前；
 - 自费 / 收学费 / 领域明显偏离（法律、医学、生物、物理、工程等）会被剔除；
-- 项目内部排序分 ≥ **5.0**、funding ≥ **8.0** 时立即发邮件，其余进 5 天汇总。
+- 项目内部排序分 ≥ **5.0** 时立即发邮件，其余进 5 天汇总；项目数量不设上限，全部列出（前 8 条详细卡片，其余紧凑列表）。
+- funding 默认不参与；`show_funding=true` 时才会抓取并作为最后的支撑线索出现。
 
 首次运行只建立基线，不会把历史积压一次性当「新项目」轰炸你。
 
@@ -76,7 +79,7 @@ EURAXESS、FindAPhD、Academic Positions、LinkedIn Jobs、ERC 项目库、DFF�
 
 ## 三、邮件长什么样
 
-按四个板块组织，**每个板块只列项目（学校/招聘页直招）**；funding 不占板块，统一放在最后的「支撑线索：funding / PI（不是岗位）」区，最多 10 条，完整清单在 CSV 附件里。不显示匹配分；每条项目会标出「子方向」和「命中关键词」。
+按四个板块组织，**每个板块只列项目（学校/招聘页直招），数量不设上限**；默认不显示 funding。每条项目会标出「子方向」和「命中关键词」，不显示匹配分。
 
 即时告警**只发项目**；funding 只进 5 天汇总，避免被 PI 项目淹没。
 
@@ -134,7 +137,9 @@ EURAXESS、FindAPhD、Academic Positions、LinkedIn Jobs、ERC 项目库、DFF�
 | `monitor.digest_every_days` | 5 | 汇总间隔 |
 | `monitor.digest_detail_items` | 8 | 每个板块前几条用详细卡片 |
 | `monitor.digest_attachment` | csv | 汇总附件：csv / html / both / none |
-| `monitor.funding_display_limit` | 10 | 邮件里最多列几条 funding 支撑线索（完整见 CSV） |
+| `monitor.show_funding` | false | 是否抓取并显示 funding 支撑线索 |
+| `monitor.funding_display_limit` | 10 | 显示 funding 时，邮件里最多列几条 |
+| `monitor.max_items_per_email` | 0 | 0 = 不限制项目数量 |
 | `profile.country_bonus` | NL/DK 3… | 国家偏好 |
 
 想加大学招聘页：复制 `uni_page` 那段，填 `url`、`institution`、`country`、`href_contains` 即可。
@@ -158,6 +163,7 @@ python -m unittest discover -s tests -v
 - **GEPRIS** 用的是网页前端检索接口，不是正式公开 API；已限速并只取在研项目，如遇改版需调整。
 - **AcademicTransfer** 只抓最新 + 营销/商科相关 slug 的岗位（每次约 30 个详情页），不是全量；它同时覆盖 Tilburg、Erasmus、RUG、VU 等荷兰高校。
 - 已直接接入 5 所学校的招聘页（UvA、CBS、RUG、VU、UCPH）；Tilburg / Erasmus / Aarhus 的招聘列表是 JS 渲染或改版 404，暂未接入，避免制造假的“源失败”。
+- 项目数量不设上限，邮件可能较长；完整清单始终在 CSV 附件里。
 - 关键词是规则匹配，不是语义模型；同义表达可能漏，泛词可能误命中。邮件里的「命中关键词」就是给你快速判断用的。
 - 云端 IP 仍可能被个别站点临时封禁；连续失败会在状态表里标红。
 

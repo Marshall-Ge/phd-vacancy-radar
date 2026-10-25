@@ -49,6 +49,7 @@ class Monitor:
     digest_attachment: str = "csv"  # csv | html | both | none
     funding_per_section_limit: int = 3
     funding_display_limit: int = 10
+    show_funding: bool = False
     startup_email: bool = True
     state_file: str = "state.json"
     failure_alert_after_hours: int = 12
@@ -151,6 +152,7 @@ def load_config(path: str | Path = "config.toml") -> Config:
         digest_attachment=str(monitor_raw.get("digest_attachment", "csv")).lower(),
         funding_per_section_limit=int(monitor_raw.get("funding_per_section_limit", 3)),
         funding_display_limit=int(monitor_raw.get("funding_display_limit", 10)),
+        show_funding=bool(monitor_raw.get("show_funding", False)),
         startup_email=bool(monitor_raw.get("startup_email", True)),
         state_file=str(monitor_raw.get("state_file", "state.json")),
         failure_alert_after_hours=int(monitor_raw.get("failure_alert_after_hours", 12)),
