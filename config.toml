@@ -1,5 +1,5 @@
 # PhD Vacancy Radar 配置
-# 关键词库来自《欧洲岗位制PhD_AI追踪关键词库.xlsx》，按 A/B/C/D 四个板块组织。
+# 关键词库来自《欧洲岗位制PhD_AI追踪关键词库.xlsx》，按 A/B/C/D 四个板块 + 子方向组织。
 
 [profile]
 name = "消费者分析 / 数据驱动决策 / 信息系统与数字化转型"
@@ -21,10 +21,27 @@ negative_domains = [
 ]
 country_bonus = { NL = 3.0, DK = 3.0, DE = 2.0, UK = 1.0, SE = 1.0, BE = 1.0, AT = 1.0, CH = 1.0, FI = 1.0, NO = 1.0 }
 
+
 [[section]]
 key = "A"
 name = "A｜消费者分析与计算营销"
 priority = 1
+anchors = [
+  "Marketing",
+  "Consumer",
+  "Advertising",
+  "Retail",
+  "Brand",
+  "Pricing",
+  "Customer",
+  "Shopping",
+  "E-commerce",
+  "Social Commerce"
+]
+
+[[section.sub]]
+name = "核心方向词"
+weight = 3.0
 keywords = [
   "Quantitative Marketing",
   "Consumer Analytics",
@@ -35,6 +52,13 @@ keywords = [
   "Digital Marketing Analytics",
   "Quantitative Consumer Research",
   "Consumer Decision-Making",
+  "Digital Consumer Behavior"
+]
+
+[[section.sub]]
+name = "消费者行为与选择"
+weight = 2.5
+keywords = [
   "Digital Consumer Behavior",
   "Online Consumer Behavior",
   "Consumer Choice Modeling",
@@ -43,6 +67,14 @@ keywords = [
   "Purchase Decision-Making",
   "Consumer Preference Modeling",
   "Consumer Preference Modelling",
+  "Consumer Analytics",
+  "Consumer Decision-Making"
+]
+
+[[section.sub]]
+name = "平台与社交媒体"
+weight = 2.5
+keywords = [
   "Social Media Analytics",
   "Social Media Mining",
   "Social Commerce",
@@ -52,7 +84,13 @@ keywords = [
   "eWOM",
   "Influencer Marketing Analytics",
   "Cross-Cultural Consumer Behavior",
-  "Digital Trace Data",
+  "Digital Trace Data"
+]
+
+[[section.sub]]
+name = "AI与消费者决策"
+weight = 2.5
+keywords = [
   "AI in Marketing",
   "Artificial Intelligence in Marketing",
   "AI-Enabled Consumer Decision-Making",
@@ -62,13 +100,25 @@ keywords = [
   "AI and Consumer Choice",
   "Generative AI in Marketing",
   "Large Language Models in Marketing",
-  "AI-Driven Personalization",
+  "AI-Driven Personalization"
+]
+
+[[section.sub]]
+name = "推荐与个性化"
+weight = 2.5
+keywords = [
   "Algorithmic Recommendations",
   "Recommender Systems",
   "Personalization",
   "Personalized Recommendations",
   "Algorithmic Persuasion",
-  "Consumer Trust in AI",
+  "Consumer Trust in AI"
+]
+
+[[section.sub]]
+name = "可持续消费"
+weight = 2.5
+keywords = [
   "Sustainable Consumer Decision-Making",
   "Sustainable Consumption",
   "AI and Sustainable Consumption",
@@ -82,6 +132,18 @@ keywords = [
 key = "B"
 name = "B｜数据驱动决策"
 priority = 2
+anchors = [
+  "Decision",
+  "Analytics",
+  "Business Intelligence",
+  "Data-Driven",
+  "Evidence-Based",
+  "Performance Monitoring"
+]
+
+[[section.sub]]
+name = "核心方向词"
+weight = 3.0
 keywords = [
   "Data-Driven Decision-Making",
   "Data-Driven Decision Making",
@@ -90,14 +152,26 @@ keywords = [
   "Decision Analytics",
   "Analytics Adoption",
   "Decision Support Systems",
-  "Business Analytics",
+  "Business Analytics"
+]
+
+[[section.sub]]
+name = "AI与算法辅助决策"
+weight = 2.5
+keywords = [
   "AI-Driven Decision Support",
   "AI-Assisted Decision-Making",
   "Algorithmic Decision-Making",
   "Human-AI Decision-Making",
   "Algorithmic Advice",
   "Trust in Algorithmic Advice",
-  "Decision Support Tools",
+  "Decision Support Tools"
+]
+
+[[section.sub]]
+name = "信息使用与决策绩效"
+weight = 2.5
+keywords = [
   "Data Analytics and Decision-Making",
   "Information Use",
   "Dashboard Use",
@@ -107,7 +181,13 @@ keywords = [
   "Managerial Decision-Making",
   "Data-Driven Decision Processes",
   "Data Visualization and Decision-Making",
-  "Analytics Tools and Decision-Making",
+  "Analytics Tools and Decision-Making"
+]
+
+[[section.sub]]
+name = "平台卖家与商业决策"
+weight = 2.5
+keywords = [
   "Platform Seller Analytics",
   "Seller Decision-Making",
   "Data-Driven Selling",
@@ -118,6 +198,22 @@ keywords = [
 key = "C"
 name = "C｜信息系统与数字化转型"
 priority = 3
+anchors = [
+  "Information Systems",
+  "Digital",
+  "Technology",
+  "Platform",
+  "Innovation",
+  "IT",
+  "E-Business",
+  "E-Government",
+  "Digitalization",
+  "Digitisation"
+]
+
+[[section.sub]]
+name = "核心方向词"
+weight = 3.0
 keywords = [
   "Information Systems",
   "Business Information Systems",
@@ -127,14 +223,26 @@ keywords = [
   "Technology Use",
   "IT Business Value",
   "Digital Business",
-  "Digital Innovation Management",
+  "Digital Innovation Management"
+]
+
+[[section.sub]]
+name = "平台与组织技术应用"
+weight = 2.5
+keywords = [
   "Digital Platforms",
   "Platform Economy",
   "Platform Governance",
   "Digital Technology and Organizations",
   "Information Technology and Organizational Performance",
   "Technology-Mediated Decision-Making",
-  "Sociotechnical Systems",
+  "Sociotechnical Systems"
+]
+
+[[section.sub]]
+name = "用户与系统交互"
+weight = 2.5
+keywords = [
   "Consumer-System Interaction",
   "Human-Computer Interaction",
   "Digital Platform Use",
@@ -150,6 +258,28 @@ keywords = [
 key = "D"
 name = "D｜通用与方法"
 priority = 4
+anchors = [
+  "Management",
+  "Business",
+  "Accounting",
+  "Finance",
+  "Economics",
+  "Operations",
+  "Auditing",
+  "Entrepreneurship",
+  "Strategy",
+  "Organizational Behavior",
+  "Organisational Behaviour",
+  "Statistics",
+  "Machine Learning",
+  "Natural Language Processing",
+  "Causal Inference",
+  "Econometrics"
+]
+
+[[section.sub]]
+name = "定量与计算方法"
+weight = 2.0
 keywords = [
   "Econometric Modeling",
   "Econometric Modelling",
@@ -176,23 +306,26 @@ keywords = [
   "Experimental Design",
   "Structural Modeling",
   "Structural Modelling",
-  "Bayesian",
-  "Marketing",
-  "Consumer",
+  "Bayesian"
+]
+
+[[section.sub]]
+name = "泛商科/管理"
+weight = 1.0
+keywords = [
   "Management",
   "Business",
-  "Analytics",
-  "Data Science",
   "Accounting",
-  "Auditing",
-  "Operations",
-  "Technology",
-  "Innovation",
-  "Platform",
-  "Digital",
+  "Finance",
   "Economics",
-  "Finance"
+  "Operations",
+  "Auditing",
+  "Entrepreneurship",
+  "Strategy",
+  "Organizational Behavior",
+  "Organisational Behaviour"
 ]
+
 
 [monitor]
 digest_every_days = 5

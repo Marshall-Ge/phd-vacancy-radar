@@ -1,10 +1,11 @@
-"""匹配评分与板块归类。"""
+"""关键词加权打分与板块归类。"""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from .config import Profile, Section
+from .config import Profile, Section, Subsection
 from .models import Award, Position
 from .textutil import (
     has_funding_signal,
@@ -17,60 +18,116 @@ from .textutil import (
 )
 
 
+@dataclass
+class SectionMatch:
+    section: Section
+    score: float
+    subsection: str
+    keywords: list[str]
+    title_hit: bool
+
+
 def _sections(profile: Profile, sections: list[Section] | None) -> list[Section]:
     if sections:
         return sections
-    return [Section(key="A", name="目标方向", keywords=profile.topics, priority=1)]
+    return [
+        Section(
+            key="A",
+            name="目标方向",
+            priority=1,
+            anchors=list(profile.topics),
+            subsections=[Subsection(name="关键词", weight=2.0, keywords=list(profile.topics))],
+        )
+    ]
 
 
-def _match_by_section(text: str, sections: list[Section]) -> dict[str, list[str]]:
-    normalized = normalize_keyword_text(text)
-    result: dict[str, list[str]] = {}
-    for section in sections:
-        hits = [kw for kw in section.keywords if keyword_matches(kw, normalized)]
-        if hits:
-            result[section.key] = hits
-    return result
+def _match_section(title: str, body: str, section: Section) -> SectionMatch:
+    title_norm = normalize_keyword_text(title)
+    body_norm = normalize_keyword_text(body)
+    score = 0.0
+    title_hit = False
+    matched: list[str] = []
+    best_sub = ""
+    best_sub_score = 0.0
+    seen: set[str] = set()
+
+    for subsection in section.subsections:
+        for keyword in subsection.keywords:
+            key = normalize_keyword_text(keyword)
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            in_title = keyword_matches(keyword, title_norm)
+            in_body = keyword_matches(keyword, body_norm)
+            if not in_title and not in_body:
+                continue
+            weight = subsection.weight * (2.0 if in_title else 1.0)
+            score += weight
+            title_hit = title_hit or in_title
+            matched.append(keyword)
+            if weight > best_sub_score:
+                best_sub_score = weight
+                best_sub = subsection.name
+
+    for anchor in section.anchors:
+        key = normalize_keyword_text(anchor)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        in_title = keyword_matches(anchor, title_norm)
+        in_body = keyword_matches(anchor, body_norm)
+        if not in_title and not in_body:
+            continue
+        score += 2.0 if in_title else 1.0
+        title_hit = title_hit or in_title
+        matched.append(anchor)
+        if 2.0 > best_sub_score:
+            best_sub_score = 2.0
+            best_sub = "方向关键词"
+
+    return SectionMatch(
+        section=section,
+        score=round(score, 2),
+        subsection=best_sub,
+        keywords=matched[:12],
+        title_hit=title_hit,
+    )
 
 
-def _pick_section(hits: dict[str, list[str]], sections: list[Section]) -> tuple[Section | None, list[str]]:
-    research = [s for s in sections if s.key in {"A", "B", "C"} and s.key in hits]
-    if research:
-        best = max(research, key=lambda s: (len(hits[s.key]), -s.priority))
-        return best, hits[best.key]
-    if "D" in hits:
-        section = next((s for s in sections if s.key == "D"), None)
-        if section is not None:
-            return section, hits["D"]
-    return None, []
+def _best_match(title: str, body: str, sections: list[Section]) -> SectionMatch | None:
+    matches = [_match_section(title, body, section) for section in sections]
+    candidates = [m for m in matches if m.title_hit and m.score >= 2.0]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda m: (m.score, -m.section.priority))
 
 
 def score_position(
     pos: Position, profile: Profile, now: datetime, sections: list[Section] | None = None
 ) -> Position:
     sections = _sections(profile, sections)
-    title_hits = _match_by_section(pos.title, sections)
-    if not is_phd_related(pos.title, pos.description) or not title_hits:
+    if not is_phd_related(pos.title, pos.description):
         pos.score = 0.0
-        pos.flags.append("标题未命中目标方向")
+        pos.flags.append("非博士岗位")
         return pos
 
     text = f"{pos.title} {pos.description} {pos.institution} {pos.salary}"
-    hits = _match_by_section(text, sections)
-    section, keywords = _pick_section(hits, sections)
-    if section is None:
+    match = _best_match(pos.title, text, sections)
+    if match is None:
         pos.score = 0.0
+        pos.flags.append("标题未命中任何板块")
         return pos
 
-    pos.section = section.key
-    pos.keywords = keywords[:10]
-    pos.topics = keywords[:10]
+    pos.section = match.section.key
+    pos.subsection = match.subsection
+    pos.keywords = match.keywords
+    pos.topics = match.keywords
     pos.methods = match_terms(text, profile.methods)
 
-    score = min(6.0, 2.0 * len(keywords))
-    score += min(2.5, 0.8 * len(pos.methods))
+    score = min(6.0, match.score * 0.8)
+    score += min(2.0, 0.8 * len(pos.methods))
     score += min(3.0, profile.country_bonus.get(pos.country.upper(), 0.0))
-    if section.key == "D":
+    if match.section.key == "D":
         score = min(score, 4.5)
 
     if has_funding_signal(f"{pos.description} {pos.salary}"):
@@ -104,21 +161,21 @@ def score_award(
 ) -> Award:
     sections = _sections(profile, sections)
     text = f"{award.title} {award.summary} {award.programme}"
-    hits = _match_by_section(text, sections)
-    section, keywords = _pick_section(hits, sections)
-    if section is None:
+    match = _best_match(award.title, text, sections)
+    if match is None:
         award.score = 0.0
         return award
 
-    award.section = section.key
-    award.keywords = keywords[:10]
-    award.topics = keywords[:10]
+    award.section = match.section.key
+    award.subsection = match.subsection
+    award.keywords = match.keywords
+    award.topics = match.keywords
 
-    score = min(7.5, 2.5 * len(keywords))
+    score = min(7.5, match.score * 0.9)
     score += min(1.0, profile.country_bonus.get(award.country.upper(), 0.0))
     if award.end_year is None or award.end_year >= now.year:
         score += 0.5
-    if section.key == "D":
+    if match.section.key == "D":
         score = min(score, 5.5)
 
     normalized = normalize_keyword_text(text)

@@ -221,6 +221,8 @@ def _pos_text(pos: Position) -> list[str]:
     lines = [f"- {pos.title}", f"  {pos.summary()}"]
     if pos.salary:
         lines.append(f"  薪资/经费：{pos.salary[:160]}")
+    if pos.subsection:
+        lines.append(f"  子方向：{pos.subsection}")
     if pos.keywords:
         lines.append(f"  命中关键词：{'、'.join(pos.keywords[:5])}")
     lines.append(f"  链接：{pos.url}")
@@ -229,6 +231,8 @@ def _pos_text(pos: Position) -> list[str]:
 
 def _award_text(award: Award) -> list[str]:
     lines = [f"- {award.title}", f"  {award.summary_line()}"]
+    if award.subsection:
+        lines.append(f"  子方向：{award.subsection}")
     if award.keywords:
         lines.append(f"  命中关键词：{'、'.join(award.keywords[:5])}")
     lines.append(f"  详情页：{award.url}")
@@ -341,6 +345,7 @@ def _pos_card(pos: Position) -> str:
     deadline = f"截止 {pos.deadline:%Y-%m-%d}" if pos.deadline else ""
     salary = pos.salary[:120] if pos.salary else "薪资/经费见原页面"
     keywords = f"命中关键词：{'、'.join(pos.keywords[:5])}" if pos.keywords else ""
+    subsection = f"子方向：{pos.subsection}" if pos.subsection else ""
     return (
         '<div style="border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin:10px 0">'
         f'<div style="font-size:12px;color:#6b7280;margin-bottom:5px">{_e(deadline)}</div>'
@@ -349,7 +354,8 @@ def _pos_card(pos: Position) -> str:
         + (f" · {_e(pos.city)}" if pos.city else "")
         + "</div>"
         f'<div style="font-size:12px;color:#6b7280;margin-top:4px">{_e(salary)}</div>'
-        + (f'<div style="font-size:12px;color:#065f46;margin-top:6px">{_e(keywords)}</div>' if keywords else "")
+        + (f'<div style="font-size:12px;color:#065f46;margin-top:6px">{_e(subsection)}</div>' if subsection else "")
+        + (f'<div style="font-size:12px;color:#065f46;margin-top:2px">{_e(keywords)}</div>' if keywords else "")
         + f'<div style="font-size:12px;color:#374151;margin-top:6px;line-height:1.6">{_e(pos.description[:180])}</div>'
         "</div>"
     )
@@ -359,6 +365,7 @@ def _award_card(award: Award) -> str:
     years = f"{award.start_year or '?'}–{award.end_year or '?'}"
     pi_line = f"PI：{award.pi} · " if award.pi else ""
     keywords = f"命中关键词：{'、'.join(award.keywords[:5])}" if award.keywords else ""
+    subsection = f"子方向：{award.subsection}" if award.subsection else ""
     links = ""
     if award.pi:
         links += (
@@ -371,7 +378,8 @@ def _award_card(award: Award) -> str:
         f'<div style="font-size:12px;color:#6b7280;margin-bottom:5px">{_e(award.programme)} · {_e(years)}</div>'
         f'<a href="{_e(award.url)}" style="color:#1d4ed8;text-decoration:none;font-size:15px;font-weight:700;line-height:1.5">{_e(award.title)}</a>'
         f'<div style="font-size:13px;color:#4b5563;margin-top:5px">{_e(pi_line)}{_e(award.institution)} · {_e(award.country)}</div>'
-        + (f'<div style="font-size:12px;color:#065f46;margin-top:6px">{_e(keywords)}</div>' if keywords else "")
+        + (f'<div style="font-size:12px;color:#065f46;margin-top:6px">{_e(subsection)}</div>' if subsection else "")
+        + (f'<div style="font-size:12px;color:#065f46;margin-top:2px">{_e(keywords)}</div>' if keywords else "")
         + f'<div style="font-size:12px;margin-top:8px">{links}</div>'
         "</div>"
     )
@@ -425,7 +433,7 @@ def _days(state: State, now: datetime) -> int:
 # 附件：CSV / HTML 完整清单（按四个板块）
 # ---------------------------------------------------------------------------
 CSV_HEADER = [
-    "板块", "类型", "标题", "机构", "国家", "城市", "PI", "来源/计划",
+    "板块", "类型", "子方向", "标题", "机构", "国家", "城市", "PI", "来源/计划",
     "截止日期", "发布日期", "薪资/经费", "命中关键词", "链接", "摘要",
 ]
 
@@ -450,7 +458,7 @@ def build_csv(cfg: Config, positions: list[Position], awards: list[Award]) -> by
         if kind == "position":
             pos = item
             writer.writerow([
-                section.name, "项目", pos.title, pos.institution, pos.country, pos.city, "",
+                section.name, "项目", pos.subsection, pos.title, pos.institution, pos.country, pos.city, "",
                 pos.source, pos.deadline.strftime("%Y-%m-%d") if pos.deadline else "",
                 pos.published.strftime("%Y-%m-%d") if pos.published else "", pos.salary,
                 " / ".join(pos.keywords), pos.url, (pos.description or "")[:300],
@@ -458,7 +466,7 @@ def build_csv(cfg: Config, positions: list[Position], awards: list[Award]) -> by
         else:
             award = item
             writer.writerow([
-                section.name, "funding", award.title, award.institution, award.country, "",
+                section.name, "funding", award.subsection, award.title, award.institution, award.country, "",
                 award.pi, award.programme, "", "",
                 f"{award.start_year or ''}-{award.end_year or ''}".strip("-"),
                 " / ".join(award.keywords), award.url, (award.summary or "")[:300],

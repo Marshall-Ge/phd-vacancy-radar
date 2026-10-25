@@ -22,6 +22,7 @@ class Position:
     topics: list[str] = field(default_factory=list)
     methods: list[str] = field(default_factory=list)
     section: str = ""
+    subsection: str = ""
     keywords: list[str] = field(default_factory=list)
     score: float = 0.0
     flags: list[str] = field(default_factory=list)
@@ -47,6 +48,7 @@ class Award:
     summary: str = ""
     topics: list[str] = field(default_factory=list)
     section: str = ""
+    subsection: str = ""
     keywords: list[str] = field(default_factory=list)
     score: float = 0.0
 

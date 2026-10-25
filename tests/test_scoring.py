@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from datetime import datetime, timedelta, timezone
 
-from phd_radar.config import Profile
+from phd_radar.config import Profile, load_config
 from phd_radar.models import Award, Position
 from phd_radar.scoring import score_award, score_position
 from phd_radar.textutil import infer_country, match_topics, parse_loose_date
@@ -55,6 +55,22 @@ class TextTests(unittest.TestCase):
     def test_date_parsing(self):
         self.assertEqual(parse_loose_date("9 Nov ’26").year, 2026)
         self.assertEqual(parse_loose_date("2026-11-09").month, 11)
+
+
+class SectionAssignmentTests(unittest.TestCase):
+    def test_titles_land_in_expected_sections(self):
+        cfg = load_config("config.toml")
+        cases = {
+            "PhD in Marketing": "A",
+            "PhD in Data-Driven Decision-Making": "B",
+            "PhD in Information Systems": "C",
+            "PhD in Management": "D",
+        }
+        for title, expected in cases.items():
+            pos = make_position(title)
+            scored = score_position(pos, cfg.profile, NOW, cfg.sections)
+            self.assertEqual(scored.section, expected, title)
+            self.assertGreater(scored.score, 0, title)
 
 
 class ScoringTests(unittest.TestCase):

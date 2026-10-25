@@ -9,11 +9,19 @@ from pathlib import Path
 
 
 @dataclass
+class Subsection:
+    name: str
+    weight: float
+    keywords: list[str] = field(default_factory=list)
+
+
+@dataclass
 class Section:
     key: str
     name: str
-    keywords: list[str] = field(default_factory=list)
     priority: int = 99
+    anchors: list[str] = field(default_factory=list)
+    subsections: list[Subsection] = field(default_factory=list)
 
 
 @dataclass
@@ -183,17 +191,38 @@ def load_config(path: str | Path = "config.toml") -> Config:
     for entry in raw.get("section", []):
         if not isinstance(entry, dict) or not entry.get("key"):
             continue
+        subs: list[Subsection] = []
+        for sub in entry.get("sub", []):
+            if not isinstance(sub, dict):
+                continue
+            subs.append(
+                Subsection(
+                    name=str(sub.get("name") or "关键词"),
+                    weight=float(sub.get("weight", 2.0)),
+                    keywords=[str(x) for x in sub.get("keywords", [])],
+                )
+            )
+        if not subs and entry.get("keywords"):
+            subs = [Subsection(name="关键词", weight=2.0, keywords=[str(x) for x in entry["keywords"]])]
+        anchors = [str(x) for x in entry.get("anchors", [])] or [kw for sub in subs for kw in sub.keywords]
         sections.append(
             Section(
                 key=str(entry["key"]),
                 name=str(entry.get("name") or entry["key"]),
-                keywords=[str(x) for x in entry.get("keywords", [])],
                 priority=int(entry.get("priority", 99)),
+                anchors=anchors,
+                subsections=subs,
             )
         )
     if not sections:
         sections = [
-            Section(key="A", name="目标方向", keywords=profile.topics, priority=1),
+            Section(
+                key="A",
+                name="目标方向",
+                priority=1,
+                anchors=list(profile.topics),
+                subsections=[Subsection(name="关键词", weight=2.0, keywords=list(profile.topics))],
+            ),
         ]
 
     base_dir = path.resolve().parent
