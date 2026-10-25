@@ -1,0 +1,75 @@
+name: PhD vacancy radar
+
+on:
+  schedule:
+    # 每小时检查一次；有新项目立即发邮件
+    - cron: "0 * * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "运行模式"
+        required: true
+        default: "check"
+        type: choice
+        options:
+          - check
+          - digest
+          - test-email
+          - status
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phd-vacancy-radar
+  cancel-in-progress: false
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run radar
+        env:
+          TZ: Asia/Shanghai
+          PYTHONUNBUFFERED: "1"
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_PROVIDER: ${{ vars.MAIL_PROVIDER }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: python -m phd_radar "${{ inputs.mode || 'check' }}"
+
+      - name: Persist radar state
+        if: always()
+        run: |
+          set -e
+          git add -f state.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "state unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: update radar state [skip ci]"
+          for i in 1 2 3; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push && exit 0
+            echo "push failed, retrying ($i/3)"
+            sleep 5
+          done
+          exit 1

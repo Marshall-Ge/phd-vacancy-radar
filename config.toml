@@ -1,0 +1,154 @@
+# PhD Vacancy Radar 配置
+# 目标画像：信息系统 / 管理 / 数据驱动决策 / 数字化转型
+# 原则：有新项目立即发邮件；每 5 天发一次汇总。
+
+[profile]
+name = "信息系统 / 管理 / 数据驱动决策 / 数字化转型"
+topics = [
+  "information systems",
+  "digital transformation",
+  "digital strategy",
+  "data-driven decision",
+  "data-driven management",
+  "business analytics",
+  "management and organization",
+  "organizational behavior",
+  "technology adoption",
+  "digital innovation",
+  "decision support",
+  "digital business model",
+  "platform",
+  "AI adoption",
+  "artificial intelligence",
+  "Wirtschaftsinformatik",
+  "Digitalisierung",
+  "Unternehmensführung",
+]
+methods = [
+  "quantitative",
+  "causal inference",
+  "econometrics",
+  "statistics",
+  "statistical",
+  "field experiment",
+  "experiment",
+  "empirical",
+  "panel data",
+  "machine learning",
+  "survey",
+]
+negative = ["self-funded", "self funded", "tuition fees", "unpaid", "fee-paying"]
+core_topics = [
+  "information systems",
+  "digital transformation",
+  "digital strategy",
+  "data-driven decision",
+  "data-driven management",
+  "business analytics",
+  "management and organization",
+  "digital innovation",
+  "platform",
+  "technology adoption",
+  "Wirtschaftsinformatik",
+]
+negative_domains = [
+  "law", "legal", "medical", "clinical", "health", "nursing", "biology",
+  "genomic", "genetics", "fisheries", "aquaculture", "physics", "chemistry",
+  "museum", "heritage", "archaeology", "history", "theology", "geology",
+  "railway", "cardiac", "ecology", "public health", "education",
+]
+domain_terms = [
+  "management", "business", "organization", "organisation", "information",
+  "digital", "data", "analytics", "technology", "innovation", "platform",
+  "strategy", "marketing", "economics", "operations",
+]
+country_bonus = { NL = 3.0, DK = 3.0, DE = 2.0, UK = 1.0, SE = 1.0, BE = 1.0, AT = 1.0, CH = 1.0, FI = 1.0, NO = 1.0 }
+
+[monitor]
+digest_every_days = 5
+digest_hour = 9                  # 本地时间 9 点后发汇总
+timezone = "Asia/Shanghai"
+alert_score = 5.0                # 新岗位达到这个分数立即发邮件
+award_alert_score = 8.0          # 新资助项目达到这个分数立即发邮件
+max_items_per_email = 10          # 即时告警最多列几条
+digest_max_items = 150            # 5 天汇总最多列几条（尽量全）
+digest_detail_items = 8           # 其中前几条用详细卡片，其余用紧凑清单
+digest_attachment = "csv"         # 汇总附件：csv / html / both / none
+startup_email = true             # 首次运行发「监控已启动」+ 基线
+state_file = "state.json"
+failure_alert_after_hours = 12
+failure_alert_cooldown_hours = 24
+
+[notify]
+provider = "smtp"
+to = []                          # 1-2 个邮箱；也可用 GitHub Secret MAIL_TO（逗号分隔）
+from_name = "PhD Vacancy Radar"
+smtp_host = "smtp.163.com"
+smtp_port = 465
+smtp_ssl = true
+# MAIL_USERNAME / MAIL_PASSWORD（授权码）走环境变量或 GitHub Secrets
+username = ""
+password = ""
+resend_from = "onboarding@resend.dev"
+
+# ---------------------------------------------------------------------------
+# 岗位源
+# ---------------------------------------------------------------------------
+
+[[source]]
+type = "jobs_ac_uk"
+name = "jobs.ac.uk"
+enabled = true
+queries = [
+  "PhD information systems",
+  "PhD digital transformation",
+  "PhD business analytics",
+  "PhD management",
+]
+pages = 1
+
+[[source]]
+type = "academic_transfer"
+name = "AcademicTransfer"
+enabled = true
+max_details = 20
+newest = 10
+domain = 10
+
+[[source]]
+type = "uni_page"
+name = "UCPH"
+enabled = true
+url = "https://employment.ku.dk/all-vacancies"
+institution = "University of Copenhagen"
+country = "DK"
+href_contains = "/all-vacancies?show="
+keywords = ["phd", "doctoral"]
+
+# ---------------------------------------------------------------------------
+# 资助 / PI 源
+# ---------------------------------------------------------------------------
+
+[[source]]
+type = "gepris"
+name = "GEPRIS"
+enabled = true
+queries = ["information systems", "Wirtschaftsinformatik", "digital transformation", "business analytics"]
+size = 50
+years_back = 2
+
+[[source]]
+type = "nwo"
+name = "NWO"
+enabled = true
+topics = ["information systems", "digital transformation", "business analytics", "data-driven", "management"]
+page_size = 50
+years_back = 3
+
+[[source]]
+type = "ukri"
+name = "UKRI GtR"
+enabled = true
+queries = ["information systems", "digital transformation", "business analytics"]
+size = 50
+years_back = 3
