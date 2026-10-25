@@ -27,6 +27,7 @@ class State:
     seen_awards: dict[str, str] = field(default_factory=dict)
     alerted: dict[str, str] = field(default_factory=dict)
     first_run_done: bool = False
+    paused: bool = False
     last_snapshot: dict[str, Any] = field(default_factory=dict)
 
     def remember(self, kind: str, key: str, when: datetime) -> bool:
@@ -67,6 +68,7 @@ class State:
             "seen_awards": self.seen_awards,
             "alerted": self.alerted,
             "first_run_done": self.first_run_done,
+            "paused": self.paused,
             "last_snapshot": self.last_snapshot,
         }
 
@@ -85,6 +87,7 @@ class State:
         state.seen_awards = dict(raw.get("seen_awards") or {})
         state.alerted = dict(raw.get("alerted") or {})
         state.first_run_done = bool(raw.get("first_run_done", False))
+        state.paused = bool(raw.get("paused", False))
         state.last_snapshot = dict(raw.get("last_snapshot") or {})
         return state
 

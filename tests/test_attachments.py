@@ -35,8 +35,8 @@ class AttachmentTests(unittest.TestCase):
         rows = list(csv.reader(io.StringIO(data.decode("utf-8-sig"))))
         self.assertEqual(rows[0][0], "类型")
         self.assertEqual(len(rows), 3)
-        self.assertEqual(rows[1][0], "岗位")
-        self.assertEqual(rows[2][0], "资助")
+        self.assertEqual(rows[1][0], "项目")
+        self.assertEqual(rows[2][0], "funding")
 
     def test_both_attachments(self):
         cfg = load_config("config.toml")

@@ -66,6 +66,27 @@ def run(args: argparse.Namespace) -> int:
 
     if args.mode == "status":
         return _print_status(cfg)
+
+    if args.mode in {"stop", "resume", "reset"}:
+        state, _ = load_state(cfg.state_path)
+        if args.mode == "stop":
+            state.paused = True
+            save_state(cfg.state_path, state)
+            print("⏸ 已暂停：之后的 check/digest 会直接跳过，不再抓取或发信。")
+            print("   恢复：Run workflow → mode=resume，或把 state.json 的 paused 改成 false。")
+            return 0
+        if args.mode == "resume":
+            state.paused = False
+            save_state(cfg.state_path, state)
+            print("▶️ 已恢复监控。")
+            return 0
+        # reset
+        fresh = State(created_at=now)
+        save_state(cfg.state_path, fresh)
+        print("♻️ 状态已重置：清空已见项目/funding、告警记录与计时。")
+        print("   下一次 check 会重新建立基线，并发送「监控已启动」。")
+        return 0
+
     if args.mode == "test-email":
         subject, text, html = render_test(cfg, now)
         if args.dry_run:
@@ -83,6 +104,11 @@ def run(args: argparse.Namespace) -> int:
     state, is_new = load_state(cfg.state_path)
     if is_new:
         state.created_at = now
+
+    if state.paused:
+        log.info("monitor paused (state.paused=true); skip this run")
+        print("⏸ 监控处于暂停状态，本次跳过。恢复请运行 mode=resume。")
+        return 0
 
     log.info("run mode=%s dry_run=%s new_state=%s", args.mode, args.dry_run, is_new)
     batch = collect(cfg)
@@ -156,7 +182,7 @@ def run(args: argparse.Namespace) -> int:
         _save(cfg, state, now, force=True, persist=not args.dry_run)
         return 0
 
-    # 立即告警：新岗位/新资助达到阈值
+    # 立即告警：新项目 / 新 funding 达到阈值
     alert_positions = [p for p in new_positions if p.score >= cfg.monitor.alert_score][: cfg.monitor.max_items_per_email]
     alert_awards = [a for a in new_awards if a.score >= cfg.monitor.award_alert_score][: cfg.monitor.max_items_per_email]
 
@@ -253,19 +279,20 @@ def _print_status(cfg: Config) -> int:
     print(f"上次检查: {human_cst(state.last_check_at)}")
     print(f"上次成功: {human_cst(state.last_success_at)}")
     print(f"上次汇总: {human_cst(state.last_digest_at)}")
-    print(f"已见岗位: {len(state.seen_positions)}，已见资助: {len(state.seen_awards)}")
+    print(f"已见项目: {len(state.seen_positions)}，已见 funding: {len(state.seen_awards)}")
+    print(f"运行状态: {'⏸ 已暂停' if state.paused else '▶️ 正常'}")
     print(f"累计: {state.stats.get('runs', 0)} 次检查 / {state.stats.get('alerts', 0)} 次告警")
     return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="phd-radar", description="岗位制 PhD / 资助项目雷达")
+    parser = argparse.ArgumentParser(prog="phd-radar", description="博士项目 / funding 雷达")
     parser.add_argument(
         "mode",
         nargs="?",
         default="check",
-        choices=["check", "digest", "test-email", "status"],
-        help="check=检查并发送；digest=强制 5 天汇总；test-email=测试邮件；status=查看状态",
+        choices=["check", "digest", "test-email", "status", "stop", "resume", "reset"],
+        help="check=检查；digest=强制汇总；test-email=测试邮件；status=状态；stop=暂停；resume=恢复；reset=重置状态",
     )
     parser.add_argument("--config", default="config.toml")
     parser.add_argument("--dry-run", action="store_true")

@@ -68,8 +68,8 @@ country_bonus = { NL = 3.0, DK = 3.0, DE = 2.0, UK = 1.0, SE = 1.0, BE = 1.0, AT
 digest_every_days = 5
 digest_hour = 9                  # 本地时间 9 点后发汇总
 timezone = "Asia/Shanghai"
-alert_score = 5.0                # 新岗位达到这个分数立即发邮件
-award_alert_score = 8.0          # 新资助项目达到这个分数立即发邮件
+alert_score = 5.0                # 新项目达到这个分数立即发邮件
+award_alert_score = 8.0          # 新 funding 达到这个分数立即发邮件
 max_items_per_email = 10          # 即时告警最多列几条
 digest_max_items = 150            # 5 天汇总最多列几条（尽量全）
 digest_detail_items = 8           # 其中前几条用详细卡片，其余用紧凑清单
@@ -92,7 +92,7 @@ password = ""
 resend_from = "onboarding@resend.dev"
 
 # ---------------------------------------------------------------------------
-# 岗位源
+# 项目源（招博士）
 # ---------------------------------------------------------------------------
 
 [[source]]
@@ -126,7 +126,7 @@ href_contains = "/all-vacancies?show="
 keywords = ["phd", "doctoral"]
 
 # ---------------------------------------------------------------------------
-# 资助 / PI 源
+# funding / PI 源
 # ---------------------------------------------------------------------------
 
 [[source]]

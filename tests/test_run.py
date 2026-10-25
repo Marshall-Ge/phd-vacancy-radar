@@ -88,9 +88,39 @@ class RunFlowTests(unittest.TestCase):
         self._run([make_position("p1")])
         code, subjects = self._run([make_position("p1"), make_position("p2")])
         self.assertEqual(code, 0)
-        self.assertTrue(any("新机会" in s for s in subjects), subjects)
+        self.assertTrue(any("新项目" in s for s in subjects), subjects)
         state = json.loads(self.state_path.read_text(encoding="utf-8"))
         self.assertIn("p2", state["alerted"])
+
+    def test_stop_pauses_and_resume(self):
+        self._run([make_position("p1")])
+        self.args.mode = "stop"
+        with mock.patch("phd_radar.run.collect", side_effect=AssertionError("should not collect")):
+            code = run(self.args)
+        self.assertEqual(code, 0)
+        state, _ = load_state(self.state_path)
+        self.assertTrue(state.paused)
+
+        self.args.mode = "check"
+        with mock.patch("phd_radar.run.collect", side_effect=AssertionError("should not collect")):
+            code = run(self.args)
+        self.assertEqual(code, 0)
+
+        self.args.mode = "resume"
+        code = run(self.args)
+        self.assertEqual(code, 0)
+        state, _ = load_state(self.state_path)
+        self.assertFalse(state.paused)
+
+    def test_reset_clears_state(self):
+        self._run([make_position("p1")])
+        self.args.mode = "reset"
+        code = run(self.args)
+        self.assertEqual(code, 0)
+        state, _ = load_state(self.state_path)
+        self.assertEqual(state.seen_positions, {})
+        self.assertFalse(state.first_run_done)
+        self.assertFalse(state.paused)
 
     def test_digest_after_five_days(self):
         self._run([make_position("p1")])

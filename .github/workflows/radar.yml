@@ -16,6 +16,9 @@ on:
           - digest
           - test-email
           - status
+          - stop
+          - resume
+          - reset
 
 permissions:
   contents: write
