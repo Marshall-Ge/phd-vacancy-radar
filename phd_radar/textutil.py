@@ -30,7 +30,7 @@ HTML_TAG = re.compile(r"<[^>]+>")
 def strip_html(value: str) -> str:
     if not value:
         return ""
-    text = HTML_TAG.sub(" ", value)
+    text = HTML_TAG.sub(" ", value).replace("\u00ad", "").replace("\u200b", "")
     text = (
         text.replace("&nbsp;", " ")
         .replace("&amp;", "&")

@@ -122,7 +122,10 @@ def render_digest(
         intro = "过去 5 天没有发现新的匹配项目或 funding。监控仍在正常运行。"
     else:
         subject = f"[PhD Radar] 5 天汇总：{len(positions)} 个新项目，{len(awards)} 个新 funding"
-        intro = "这是过去 5 天的新增汇总，按 A/B/C/D 四个板块整理；完整清单见附件。"
+        intro = (
+            "这是过去 5 天的新增汇总。A/B/C/D 四个板块只列项目；"
+            "funding 作为支撑线索放在最后，完整清单见附件。"
+        )
 
     next_at = _next_digest(cfg, now)
     text = "\n".join(
@@ -191,21 +194,25 @@ def _section_text(
 ) -> list[str]:
     lines: list[str] = []
     for section, sec_positions, sec_awards in _groups(cfg, positions, awards):
-        lines.append(f"【{section.name}】项目 {len(sec_positions)} · funding {len(sec_awards)}")
-        if not sec_positions and not sec_awards:
-            lines.append("- 本期无新增")
-            lines.append("")
-            continue
-        for pos in sec_positions[:detail_limit]:
-            lines.extend(_pos_text(pos))
-        if len(sec_positions) > detail_limit:
-            for pos in sec_positions[detail_limit:]:
-                lines.append(f"- {pos.title}｜{pos.institution} · {pos.country}｜{pos.url}")
-        for award in sec_awards[:detail_limit]:
+        lines.append(f"【{section.name}】项目 {len(sec_positions)}")
+        if not sec_positions:
+            lines.append("- 本期无新项目")
+        else:
+            for pos in sec_positions[:detail_limit]:
+                lines.extend(_pos_text(pos))
+            if len(sec_positions) > detail_limit:
+                for pos in sec_positions[detail_limit:]:
+                    lines.append(f"- {pos.title}｜{pos.institution} · {pos.country}｜{pos.url}")
+        if sec_awards:
+            lines.append(f"  另有 {len(sec_awards)} 条相关 funding 线索，见下方「支撑线索」/附件。")
+        lines.append("")
+
+    if awards:
+        lines.append("【支撑线索：funding / PI（不是岗位，供找导师参考）】")
+        for award in awards[: cfg.monitor.funding_display_limit]:
             lines.extend(_award_text(award))
-        if len(sec_awards) > detail_limit:
-            for award in sec_awards[detail_limit:]:
-                lines.append(f"- {award.title}｜{award.pi or 'PI 未列'} · {award.institution}｜{award.url}")
+        if len(awards) > cfg.monitor.funding_display_limit:
+            lines.append(f"- 另有 {len(awards) - cfg.monitor.funding_display_limit} 条 funding 见附件 CSV。")
         lines.append("")
     return lines
 
@@ -247,6 +254,8 @@ def _wrap(
     for section, sec_positions, sec_awards in _groups(cfg, positions, awards):
         blocks.append(_section_block(section, sec_positions, sec_awards, detail_limit))
 
+    funding = _funding_block(cfg, awards)
+
     manual = ""
     if show_manual:
         manual = (
@@ -273,6 +282,7 @@ def _wrap(
   <div style="padding:24px 26px">
     <p style="margin:0 0 10px;color:#374151;font-size:14px;line-height:1.75">{_e(intro)}</p>
     {''.join(blocks)}
+    {funding}
     {manual}
     <div style="margin-top:20px;padding-top:14px;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;line-height:1.7">
       检查时间：{_e(human_cst(now))}（{_e(human_kst(now))}）<br>
@@ -283,15 +293,41 @@ def _wrap(
 </body></html>"""
 
 
-def _section_block(section: Section, positions: list[Position], awards: list[Award], detail_limit: int) -> str:
-    count = f"项目 {len(positions)} · funding {len(awards)}"
-    if not positions and not awards:
-        body = '<div style="color:#9ca3af;font-size:13px;padding:6px 0">本期无新增</div>'
+def _funding_block(cfg: Config, awards: list[Award]) -> str:
+    if not awards:
+        return ""
+    limit = cfg.monitor.funding_display_limit
+    cards = "".join(_award_card(a) for a in awards[:limit])
+    note = ""
+    if len(awards) > limit:
+        note = (
+            f'<div style="color:#6b7280;font-size:12px;margin-top:8px">'
+            f"另有 {len(awards) - limit} 条 funding 见附件 CSV。</div>"
+        )
+    return (
+        '<div style="margin-top:28px;padding-top:18px;border-top:2px solid #e5e7eb">'
+        '<div style="font-size:16px;font-weight:700;color:#4c1d95;border-left:4px solid #7c3aed;padding-left:10px">'
+        "支撑线索：funding / PI（不是岗位）</div>"
+        '<div style="font-size:12px;color:#6b7280;margin:6px 0 4px 14px">'
+        "这些是已获 funding 的项目，不是学校发布的岗位；可顺着 PI/机构去找团队招聘页。</div>"
+        f"{cards}{note}</div>"
+    )
+
+
+def _section_block(
+    section: Section,
+    positions: list[Position],
+    awards: list[Award],
+    detail_limit: int,
+) -> str:
+    count = f"项目 {len(positions)}"
+    if awards:
+        count += f" · 另有 funding 线索 {len(awards)} 条"
+    if not positions:
+        body = '<div style="color:#9ca3af;font-size:13px;padding:6px 0">本期无新项目</div>'
     else:
         body = "".join(_pos_card(p) for p in positions[:detail_limit])
         body += _compact_positions(positions[detail_limit:])
-        body += "".join(_award_card(a) for a in awards[:detail_limit])
-        body += _compact_awards(awards[detail_limit:])
     return (
         '<div style="margin-top:24px">'
         f'<div style="font-size:16px;font-weight:700;color:#111827;border-left:4px solid #2563eb;padding-left:10px">'
@@ -396,9 +432,11 @@ CSV_HEADER = [
 
 def _ordered_rows(cfg: Config, positions: list[Position], awards: list[Award]):
     rows = []
-    for section, sec_positions, sec_awards in _groups(cfg, positions, awards):
+    groups = _groups(cfg, positions, awards)
+    for section, sec_positions, _ in groups:
         for pos in sec_positions:
             rows.append(("position", section, pos))
+    for section, _, sec_awards in groups:
         for award in sec_awards:
             rows.append(("award", section, award))
     return rows
@@ -430,7 +468,8 @@ def build_csv(cfg: Config, positions: list[Position], awards: list[Award]) -> by
 
 def build_full_html(cfg: Config, positions: list[Position], awards: list[Award], now: datetime) -> bytes:
     blocks = []
-    for section, sec_positions, sec_awards in _groups(cfg, positions, awards):
+    groups = _groups(cfg, positions, awards)
+    for section, sec_positions, _ in groups:
         rows = []
         for pos in sec_positions:
             rows.append(
@@ -441,21 +480,30 @@ def build_full_html(cfg: Config, positions: list[Position], awards: list[Award],
                 f"<td>{_e(pos.salary)}</td><td>{_e(' / '.join(pos.keywords))}</td>"
                 "</tr>"
             )
-        for award in sec_awards:
-            rows.append(
-                "<tr>"
-                f"<td>funding</td><td><a href='{_e(award.url)}'>{_e(award.title)}</a></td>"
-                f"<td>{_e(award.institution)}</td><td>{_e(award.country)}</td>"
-                f"<td>{_e(award.programme)}</td><td>{_e(award.pi)}</td>"
-                f"<td>{_e(' / '.join(award.keywords))}</td>"
-                "</tr>"
-            )
-        body = "".join(rows) or '<tr><td colspan="7" style="color:#9ca3af">本期无新增</td></tr>'
+        body = "".join(rows) or '<tr><td colspan="7" style="color:#9ca3af">本期无新项目</td></tr>'
         blocks.append(
-            f"<h2>{_e(section.name)} <small style='color:#6b7280'>项目 {len(sec_positions)} · funding {len(sec_awards)}</small></h2>"
-            "<table><thead><tr><th>类型</th><th>标题</th><th>机构</th><th>国家</th><th>截止/计划</th><th>薪资/PI</th><th>命中关键词</th></tr></thead>"
+            f"<h2>{_e(section.name)} <small style='color:#6b7280'>项目 {len(sec_positions)}</small></h2>"
+            "<table><thead><tr><th>类型</th><th>标题</th><th>机构</th><th>国家</th><th>截止</th><th>薪资</th><th>命中关键词</th></tr></thead>"
             f"<tbody>{body}</tbody></table>"
         )
+
+    award_rows = []
+    for section, _, sec_awards in groups:
+        for award in sec_awards:
+            award_rows.append(
+                "<tr>"
+                f"<td>{_e(section.name)}</td><td><a href='{_e(award.url)}'>{_e(award.title)}</a></td>"
+                f"<td>{_e(award.pi)}</td><td>{_e(award.institution)}</td>"
+                f"<td>{_e(award.programme)}</td><td>{_e(' / '.join(award.keywords))}</td>"
+                "</tr>"
+            )
+    funding_body = "".join(award_rows) or '<tr><td colspan="6" style="color:#9ca3af">本期无新增</td></tr>'
+    blocks.append(
+        "<h2>支撑线索：funding / PI（不是岗位）</h2>"
+        "<table><thead><tr><th>板块</th><th>项目</th><th>PI</th><th>机构</th><th>计划</th><th>命中关键词</th></tr></thead>"
+        f"<tbody>{funding_body}</tbody></table>"
+    )
+
     html = f"""<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
 <title>PhD Radar 完整清单 {now:%Y-%m-%d}</title>
 <style>

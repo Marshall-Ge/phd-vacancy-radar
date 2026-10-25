@@ -39,6 +39,8 @@ class Monitor:
     digest_max_items: int = 150
     digest_detail_items: int = 8
     digest_attachment: str = "csv"  # csv | html | both | none
+    funding_per_section_limit: int = 3
+    funding_display_limit: int = 10
     startup_email: bool = True
     state_file: str = "state.json"
     failure_alert_after_hours: int = 12
@@ -139,6 +141,8 @@ def load_config(path: str | Path = "config.toml") -> Config:
         digest_max_items=int(monitor_raw.get("digest_max_items", 150)),
         digest_detail_items=int(monitor_raw.get("digest_detail_items", 8)),
         digest_attachment=str(monitor_raw.get("digest_attachment", "csv")).lower(),
+        funding_per_section_limit=int(monitor_raw.get("funding_per_section_limit", 3)),
+        funding_display_limit=int(monitor_raw.get("funding_display_limit", 10)),
         startup_email=bool(monitor_raw.get("startup_email", True)),
         state_file=str(monitor_raw.get("state_file", "state.json")),
         failure_alert_after_hours=int(monitor_raw.get("failure_alert_after_hours", 12)),

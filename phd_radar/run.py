@@ -183,8 +183,9 @@ def run(args: argparse.Namespace) -> int:
         return 0
 
     # 立即告警：新项目 / 新 funding 达到阈值
+    # 直招优先：即时告警只发学校/招聘页的项目，funding 只进 5 天汇总。
     alert_positions = [p for p in new_positions if p.score >= cfg.monitor.alert_score][: cfg.monitor.max_items_per_email]
-    alert_awards = [a for a in new_awards if a.score >= cfg.monitor.award_alert_score][: cfg.monitor.max_items_per_email]
+    alert_awards: list = []
 
     digest_due = _digest_due(cfg, state, now) or args.mode == "digest"
 

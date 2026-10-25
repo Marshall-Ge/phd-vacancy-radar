@@ -39,13 +39,14 @@ class UniPageSource(BaseSource):
             href = anchor.get("href", "")
             if href_contains and href_contains not in href:
                 continue
-            title = strip_html(anchor.get_text(" ", strip=True))
+            raw_title = strip_html(anchor.get_text(" ", strip=True))
+            title = _clean_title(raw_title)
             lowered = title.lower()
-            if not title or "postdoc" in lowered:
+            if not title or "postdoc" in lowered or "post-doc" in lowered or "postdoctoraal" in lowered:
                 continue
             if not any(keyword in lowered for keyword in keywords):
                 continue
-            if len(title) < 12 or len(title) > 220:
+            if len(title) < 12:
                 continue
 
             absolute = urljoin(url, href)
@@ -77,6 +78,17 @@ class UniPageSource(BaseSource):
             )
 
         return self.result(positions=positions)
+
+
+def _clean_title(text: str) -> str:
+    text = re.sub(r"^(about the position|vacature|promovendus|phd candidate)\s+", "", text, flags=re.I)
+    text = re.sub(r"^phd\s+(?=phd\b)", "", text, flags=re.I)
+    text = re.sub(r"\s+", " ", text)
+    for marker in (" Faculty of", " Closes on", " €", " Salary", " The University", " We are", " This position"):
+        index = text.find(marker)
+        if index > 10:
+            text = text[:index]
+    return text[:180].strip()
 
 
 def _deadline(text: str):

@@ -24,7 +24,7 @@
 | **A** | 消费者分析与计算营销 | 定量营销、消费者分析、计算营销、平台/社交媒体、AI 与消费者决策 |
 | **B** | 数据驱动决策 | 数据驱动决策、决策分析、analytics adoption、算法辅助决策 |
 | **C** | 信息系统与数字化转型 | 信息系统、数字创新、技术采纳、平台与组织 |
-| **D** | 通用与方法 | 文本挖掘、NLP、因果推断、选择模型、需求估计等方法型方向 |
+| **D** | 通用与方法 | 文本挖掘、NLP、因果推断、选择模型、需求估计，以及泛商科（management / business / analytics 等）作为兜底 |
 
 每条岗位 / funding 只会归入**最匹配的一个板块**：先看标题命中哪个板块的关键词，命中多个时按命中数量、再按 A→B→C→D 优先级归类。
 
@@ -41,6 +41,10 @@
 | **jobs.ac.uk** | 英国 | PhD / doctoral / studentship 项目 | 搜索页 HTML |
 | **AcademicTransfer** | 荷兰 | 带薪博士项目（含薪资、截止日期） | sitemap + 详情页 JSON-LD |
 | **University of Copenhagen** | 丹麦 | PhD / doctoral 项目 | 招聘页 HTML |
+| **University of Amsterdam** | 荷兰 | PhD 项目（按 PhD 过滤） | 招聘页 HTML |
+| **Copenhagen Business School** | 丹麦 | PhD / scholarship 项目 | 招聘页 HTML |
+| **University of Groningen** | 荷兰 | PhD / promovendus 项目 | 招聘页 HTML |
+| **Vrije Universiteit Amsterdam** | 荷兰 | PhD / promovendus 项目 | 招聘页 HTML |
 | **GEPRIS (DFG)** | 德国 | 当前在研项目、PI、机构、项目类型 | 前端检索接口 |
 | **NWO** | 荷兰 | 已获 funding 的项目、PI、机构、funding 计划 | 官方 NWOpen API |
 | **UKRI GtR** | 英国 | 已获 funding 的项目、机构、funding 方 | 官方 API |
@@ -66,7 +70,9 @@ EURAXESS、FindAPhD、Academic Positions、LinkedIn Jobs、ERC 项目库、DFF�
 
 ## 三、邮件长什么样
 
-按四个板块组织，每个板块内先列项目、再列 funding；不显示匹配分。
+按四个板块组织，**每个板块只列项目（学校/招聘页直招）**；funding 不占板块，统一放在最后的「支撑线索：funding / PI（不是岗位）」区，最多 10 条，完整清单在 CSV 附件里。不显示匹配分。
+
+即时告警**只发项目**；funding 只进 5 天汇总，避免被 PI 项目淹没。
 
 ```
 【A｜消费者分析与计算营销】项目 2 · funding 1
@@ -122,6 +128,7 @@ EURAXESS、FindAPhD、Academic Positions、LinkedIn Jobs、ERC 项目库、DFF�
 | `monitor.digest_every_days` | 5 | 汇总间隔 |
 | `monitor.digest_detail_items` | 8 | 每个板块前几条用详细卡片 |
 | `monitor.digest_attachment` | csv | 汇总附件：csv / html / both / none |
+| `monitor.funding_display_limit` | 10 | 邮件里最多列几条 funding 支撑线索（完整见 CSV） |
 | `profile.country_bonus` | NL/DK 3… | 国家偏好 |
 
 想加大学招聘页：复制 `uni_page` 那段，填 `url`、`institution`、`country`、`href_contains` 即可。
@@ -143,7 +150,8 @@ python -m unittest discover -s tests -v
 
 - **EURAXESS / FindAPhD / Academic Positions / LinkedIn** 有 Cloudflare、登录或地区限制，未做自动抓取；邮件底部保留入口。
 - **GEPRIS** 用的是网页前端检索接口，不是正式公开 API；已限速并只取在研项目，如遇改版需调整。
-- **AcademicTransfer** 只抓最新 + 营销/商科相关 slug 的岗位（每次约 20 个详情页），不是全量。
+- **AcademicTransfer** 只抓最新 + 营销/商科相关 slug 的岗位（每次约 30 个详情页），不是全量；它同时覆盖 Tilburg、Erasmus、RUG、VU 等荷兰高校。
+- 已直接接入 5 所学校的招聘页（UvA、CBS、RUG、VU、UCPH）；Tilburg / Erasmus / Aarhus 的招聘列表是 JS 渲染或改版 404，暂未接入，避免制造假的“源失败”。
 - 关键词是规则匹配，不是语义模型；同义表达可能漏，泛词可能误命中。邮件里的「命中关键词」就是给你快速判断用的。
 - 云端 IP 仍可能被个别站点临时封禁；连续失败会在状态表里标红。
 

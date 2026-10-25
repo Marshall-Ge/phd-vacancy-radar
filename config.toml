@@ -176,7 +176,22 @@ keywords = [
   "Experimental Design",
   "Structural Modeling",
   "Structural Modelling",
-  "Bayesian"
+  "Bayesian",
+  "Marketing",
+  "Consumer",
+  "Management",
+  "Business",
+  "Analytics",
+  "Data Science",
+  "Accounting",
+  "Auditing",
+  "Operations",
+  "Technology",
+  "Innovation",
+  "Platform",
+  "Digital",
+  "Economics",
+  "Finance"
 ]
 
 [monitor]
@@ -189,6 +204,7 @@ max_items_per_email = 10          # 即时告警最多列几条
 digest_max_items = 150            # 5 天汇总最多列几条（尽量全）
 digest_detail_items = 8           # 其中前几条用详细卡片，其余用紧凑清单
 digest_attachment = "csv"         # 汇总附件：csv / html / both / none
+funding_display_limit = 10         # 邮件里最多列几条 funding 支撑线索（完整见 CSV）
 startup_email = true             # 首次运行发「监控已启动」+ 基线
 state_file = "state.json"
 failure_alert_after_hours = 12
@@ -231,9 +247,9 @@ pages = 1
 type = "academic_transfer"
 name = "AcademicTransfer"
 enabled = true
-max_details = 20
+max_details = 30
 newest = 10
-domain = 15
+domain = 20
 
 [[source]]
 type = "uni_page"
@@ -246,6 +262,46 @@ href_contains = "/all-vacancies?show="
 keywords = ["phd", "doctoral"]
 
 # ---------------------------------------------------------------------------
+[[source]]
+type = "uni_page"
+name = "UvA"
+enabled = true
+url = "https://werkenbij.uva.nl/en/vacancies?f=74"
+institution = "University of Amsterdam"
+country = "NL"
+href_contains = "/en/vacancies/"
+keywords = ["phd", "doctoral"]
+
+[[source]]
+type = "uni_page"
+name = "CBS"
+enabled = true
+url = "https://www.cbs.dk/en/about-cbs/jobs-cbs/vacant-positions"
+institution = "Copenhagen Business School"
+country = "DK"
+href_contains = "/vacant-positions/"
+keywords = ["phd", "doctoral"]
+
+[[source]]
+type = "uni_page"
+name = "RUG"
+enabled = true
+url = "https://www.rug.nl/about-ug/work-with-us/job-opportunities"
+institution = "University of Groningen"
+country = "NL"
+href_contains = "/vacature/"
+keywords = ["phd", "promovendus"]
+
+[[source]]
+type = "uni_page"
+name = "VU"
+enabled = true
+url = "https://werkenbij.vu.nl/vacatures"
+institution = "Vrije Universiteit Amsterdam"
+country = "NL"
+href_contains = "/vacatures/"
+keywords = ["phd", "promovendus"]
+
 # funding / PI 源
 # ---------------------------------------------------------------------------
 
