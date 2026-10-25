@@ -104,6 +104,7 @@
   },
   "alerted": {},
   "first_run_done": true,
+  "paused": true,
   "last_snapshot": {
     "positions": 11,
     "awards": 76,
