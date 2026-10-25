@@ -1,13 +1,13 @@
 {
   "version": 1,
   "created_at": "2026-10-25T12:14:54+00:00",
-  "last_check_at": "2026-10-25T12:14:54+00:00",
-  "last_success_at": "2026-10-25T12:14:54+00:00",
-  "last_digest_at": "2026-10-25T12:14:54+00:00",
+  "last_check_at": "2026-10-25T12:22:35+00:00",
+  "last_success_at": "2026-10-25T12:22:35+00:00",
+  "last_digest_at": "2026-10-25T12:22:35+00:00",
   "last_alert_at": {},
   "stats": {
-    "runs": 1,
-    "digests": 0,
+    "runs": 2,
+    "digests": 1,
     "alerts": 0,
     "failures": 0
   },
@@ -104,5 +104,23 @@
   },
   "alerted": {},
   "first_run_done": true,
-  "last_snapshot": {}
+  "last_snapshot": {
+    "positions": 11,
+    "awards": 76,
+    "top_positions": [
+      "PhD Programme in Accounting, Economics, Finance and Management",
+      "PhD Research Studentships in Management",
+      "PhD Studentships in Business & Management",
+      "PhD Position in Entrepreneurship, AI, and Labor Market Disruption",
+      "Business and Management MRes/PhD"
+    ],
+    "top_awards": [
+      "Hierarchical Taxonomies and Taxonomy Visualization: Methodological Extensions for Information Systems Research",
+      "Understanding Power in Digital Platform Ecosystems (PlatformPower) (PlatformPower)",
+      "GRK 2720 Digital Platform Ecosystems (DPE) – Digital platform-based value creation and its implications for data sharing, organization, and socio-economic development",
+      "Kansen met Data (KmD): duurzaam datagedreven werken in organisaties",
+      "AI in Knowledge Work: an Interdisciplinary Network of Early Career Researchers on Uncovering the Implications of AI in Knowledge Work"
+    ],
+    "checked_at": "2026-10-25T12:22:35.760840+00:00"
+  }
 }
