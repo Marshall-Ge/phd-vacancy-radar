@@ -1,20 +1,37 @@
 {
   "version": 1,
   "created_at": "2026-10-25T14:26:53+00:00",
-  "last_check_at": null,
-  "last_success_at": null,
-  "last_digest_at": null,
+  "last_check_at": "2026-10-25T14:28:30+00:00",
+  "last_success_at": "2026-10-25T14:28:30+00:00",
+  "last_digest_at": "2026-10-25T14:28:30+00:00",
   "last_alert_at": {},
   "stats": {
-    "runs": 0,
+    "runs": 1,
     "digests": 0,
     "alerts": 0,
     "failures": 0
   },
-  "seen_positions": {},
+  "seen_positions": {
+    "UCPH:https://employment.ku.dk/all-vacancies?show=171281": "2026-10-25T14:28:30+00:00",
+    "jobsacuk:/job/DTI215/phd-programme-in-accounting-economics-finance-and-management": "2026-10-25T14:28:30+00:00",
+    "jobsacuk:/job/DTJ287/phd-programme-in-accounting-and-finance": "2026-10-25T14:28:30+00:00",
+    "jobsacuk:/job/DTJ288/phd-studentships-in-business-and-management": "2026-10-25T14:28:30+00:00",
+    "jobsacuk:/job/DTG748/phd-position-in-entrepreneurship-ai-and-labor-market-disruption": "2026-10-25T14:28:30+00:00",
+    "CBS:https://www.cbs.dk/en/about-cbs/job-and-career/vacant-positions/phd-scholarship-auditing": "2026-10-25T14:28:30+00:00",
+    "CBS:https://www.cbs.dk/en/about-cbs/job-and-career/vacant-positions/phd-scholarship-within-accounting-and-artificial": "2026-10-25T14:28:30+00:00",
+    "UCPH:https://employment.ku.dk/all-vacancies?show=167227": "2026-10-25T14:28:30+00:00",
+    "CBS:https://www.cbs.dk/en/about-cbs/job-and-career/vacant-positions/phd-scholarship-public-sector-management-accounting-and": "2026-10-25T14:28:30+00:00",
+    "jobsacuk:/job/DTD988/phd-programme-in-machine-learning-systems": "2026-10-25T14:28:30+00:00",
+    "jobsacuk:/job/DTH152/phd-research-studentships-in-management": "2026-10-25T14:28:30+00:00",
+    "CBS:https://www.cbs.dk/en/about-cbs/job-and-career/vacant-positions/phd-positions-department-operations-management": "2026-10-25T14:28:30+00:00",
+    "academictransfer:364658": "2026-10-25T14:28:30+00:00",
+    "UCPH:https://employment.ku.dk/all-vacancies?show=167401": "2026-10-25T14:28:30+00:00",
+    "jobsacuk:/job/DTE641/phd-in-marketing": "2026-10-25T14:28:30+00:00",
+    "jobsacuk:/job/DSR002/phd-studentship-development-of-a-digital-twin-for-smart-sustainable-steel-section-production": "2026-10-25T14:28:30+00:00"
+  },
   "seen_awards": {},
   "alerted": {},
-  "first_run_done": false,
+  "first_run_done": true,
   "paused": false,
   "last_snapshot": {}
 }
