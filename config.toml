@@ -1,68 +1,183 @@
 # PhD Vacancy Radar 配置
-# 目标画像：信息系统 / 管理 / 数据驱动决策 / 数字化转型
-# 原则：有新项目立即发邮件；每 5 天发一次汇总。
+# 关键词库来自《欧洲岗位制PhD_AI追踪关键词库.xlsx》，按 A/B/C/D 四个板块组织。
 
 [profile]
-name = "信息系统 / 管理 / 数据驱动决策 / 数字化转型"
-topics = [
-  "information systems",
-  "digital transformation",
-  "digital strategy",
-  "data-driven decision",
-  "data-driven management",
-  "business analytics",
-  "management and organization",
-  "organizational behavior",
-  "technology adoption",
-  "digital innovation",
-  "decision support",
-  "digital business model",
-  "platform",
-  "AI adoption",
-  "artificial intelligence",
-  "Wirtschaftsinformatik",
-  "Digitalisierung",
-  "Unternehmensführung",
-]
+name = "消费者分析 / 数据驱动决策 / 信息系统与数字化转型"
 methods = [
-  "quantitative",
-  "causal inference",
-  "econometrics",
-  "statistics",
-  "statistical",
-  "field experiment",
-  "experiment",
-  "empirical",
-  "panel data",
-  "machine learning",
-  "survey",
+  "quantitative", "causal inference", "econometrics", "statistics", "statistical",
+  "field experiment", "experiment", "empirical", "panel data", "machine learning",
+  "text mining", "natural language processing", "consumer choice model", "demand estimation",
 ]
 negative = ["self-funded", "self funded", "tuition fees", "unpaid", "fee-paying"]
-core_topics = [
-  "information systems",
-  "digital transformation",
-  "digital strategy",
-  "data-driven decision",
-  "data-driven management",
-  "business analytics",
-  "management and organization",
-  "digital innovation",
-  "platform",
-  "technology adoption",
-  "Wirtschaftsinformatik",
-]
 negative_domains = [
-  "law", "legal", "medical", "clinical", "health", "nursing", "biology",
-  "genomic", "genetics", "fisheries", "aquaculture", "physics", "chemistry",
+  "law", "legal", "medical", "clinical", "health", "nursing", "biology", "biomedical",
+  "genomic", "genetics", "fisheries", "aquaculture", "physics", "chemistry", "chemical",
   "museum", "heritage", "archaeology", "history", "theology", "geology",
-  "railway", "cardiac", "ecology", "public health", "education",
-]
-domain_terms = [
-  "management", "business", "organization", "organisation", "information",
-  "digital", "data", "analytics", "technology", "innovation", "platform",
-  "strategy", "marketing", "economics", "operations",
+  "railway", "cardiac", "ecology", "public health", "education", "psychology",
+  "robot", "robotics", "autonomy", "autonomous", "engineering", "manufacturing",
+  "materials", "polymer", "quantum", "astrophysics", "geoscience", "neuroscience",
+  "climate", "energy", "flood", "infrastructure", "hydrogel", "molecular", "cell",
+  "virus", "virology", "genomics", "proteomics", "metabolism", "cancer", "disease",
 ]
 country_bonus = { NL = 3.0, DK = 3.0, DE = 2.0, UK = 1.0, SE = 1.0, BE = 1.0, AT = 1.0, CH = 1.0, FI = 1.0, NO = 1.0 }
+
+[[section]]
+key = "A"
+name = "A｜消费者分析与计算营销"
+priority = 1
+keywords = [
+  "Quantitative Marketing",
+  "Consumer Analytics",
+  "Computational Marketing",
+  "Marketing Analytics",
+  "AI-Driven Marketing",
+  "Data-Driven Marketing",
+  "Digital Marketing Analytics",
+  "Quantitative Consumer Research",
+  "Consumer Decision-Making",
+  "Digital Consumer Behavior",
+  "Online Consumer Behavior",
+  "Consumer Choice Modeling",
+  "Consumer Choice Modelling",
+  "Purchase Behavior Prediction",
+  "Purchase Decision-Making",
+  "Consumer Preference Modeling",
+  "Consumer Preference Modelling",
+  "Social Media Analytics",
+  "Social Media Mining",
+  "Social Commerce",
+  "Platform Consumer Behavior",
+  "User-Generated Content",
+  "Electronic Word of Mouth",
+  "eWOM",
+  "Influencer Marketing Analytics",
+  "Cross-Cultural Consumer Behavior",
+  "Digital Trace Data",
+  "AI in Marketing",
+  "Artificial Intelligence in Marketing",
+  "AI-Enabled Consumer Decision-Making",
+  "AI-Assisted Consumer Decision-Making",
+  "Human-AI Interaction",
+  "AI and Consumer Behavior",
+  "AI and Consumer Choice",
+  "Generative AI in Marketing",
+  "Large Language Models in Marketing",
+  "AI-Driven Personalization",
+  "Algorithmic Recommendations",
+  "Recommender Systems",
+  "Personalization",
+  "Personalized Recommendations",
+  "Algorithmic Persuasion",
+  "Consumer Trust in AI",
+  "Sustainable Consumer Decision-Making",
+  "Sustainable Consumption",
+  "AI and Sustainable Consumption",
+  "Sustainable Consumer Behavior",
+  "Green Purchase Behavior",
+  "Attitude-Behavior Gap",
+  "Pro-Environmental Consumer Behavior"
+]
+
+[[section]]
+key = "B"
+name = "B｜数据驱动决策"
+priority = 2
+keywords = [
+  "Data-Driven Decision-Making",
+  "Data-Driven Decision Making",
+  "Evidence-Based Decision-Making",
+  "Data-Driven Management",
+  "Decision Analytics",
+  "Analytics Adoption",
+  "Decision Support Systems",
+  "Business Analytics",
+  "AI-Driven Decision Support",
+  "AI-Assisted Decision-Making",
+  "Algorithmic Decision-Making",
+  "Human-AI Decision-Making",
+  "Algorithmic Advice",
+  "Trust in Algorithmic Advice",
+  "Decision Support Tools",
+  "Data Analytics and Decision-Making",
+  "Information Use",
+  "Dashboard Use",
+  "Performance Monitoring",
+  "Performance Feedback",
+  "Decision Quality",
+  "Managerial Decision-Making",
+  "Data-Driven Decision Processes",
+  "Data Visualization and Decision-Making",
+  "Analytics Tools and Decision-Making",
+  "Platform Seller Analytics",
+  "Seller Decision-Making",
+  "Data-Driven Selling",
+  "Decision-Making Under Uncertainty"
+]
+
+[[section]]
+key = "C"
+name = "C｜信息系统与数字化转型"
+priority = 3
+keywords = [
+  "Information Systems",
+  "Business Information Systems",
+  "Digital Transformation",
+  "Digital Innovation",
+  "Technology Adoption",
+  "Technology Use",
+  "IT Business Value",
+  "Digital Business",
+  "Digital Innovation Management",
+  "Digital Platforms",
+  "Platform Economy",
+  "Platform Governance",
+  "Digital Technology and Organizations",
+  "Information Technology and Organizational Performance",
+  "Technology-Mediated Decision-Making",
+  "Sociotechnical Systems",
+  "Consumer-System Interaction",
+  "Human-Computer Interaction",
+  "Digital Platform Use",
+  "Algorithmic Platforms",
+  "Digital Service Use",
+  "Digital Customer Experience",
+  "AI Adoption and Use",
+  "Information Systems Use",
+  "Digital Technology and Behavior"
+]
+
+[[section]]
+key = "D"
+name = "D｜通用与方法"
+priority = 4
+keywords = [
+  "Econometric Modeling",
+  "Econometric Modelling",
+  "Consumer Choice Modeling",
+  "Demand Estimation",
+  "Choice Modeling",
+  "Choice Modelling",
+  "Marketing Econometrics",
+  "Causal Inference",
+  "Field Experiments",
+  "Quasi-Experimental Methods",
+  "Machine Learning for Marketing",
+  "Text as Data",
+  "Text Mining",
+  "Natural Language Processing",
+  "NLP",
+  "Sentiment Analysis",
+  "Computational Social Science",
+  "Big Data Analytics",
+  "Observational Data",
+  "Consumer Choice Modelling",
+  "Econometrics",
+  "Field Experiment",
+  "Experimental Design",
+  "Structural Modeling",
+  "Structural Modelling",
+  "Bayesian"
+]
 
 [monitor]
 digest_every_days = 5
@@ -100,10 +215,15 @@ type = "jobs_ac_uk"
 name = "jobs.ac.uk"
 enabled = true
 queries = [
+  "PhD quantitative marketing",
+  "PhD consumer analytics",
+  "PhD marketing AI",
+  "PhD data-driven decision",
+  "PhD business analytics",
   "PhD information systems",
   "PhD digital transformation",
-  "PhD business analytics",
-  "PhD management",
+  "PhD marketing",
+  "PhD consumer behaviour",
 ]
 pages = 1
 
@@ -113,7 +233,7 @@ name = "AcademicTransfer"
 enabled = true
 max_details = 20
 newest = 10
-domain = 10
+domain = 15
 
 [[source]]
 type = "uni_page"
@@ -133,7 +253,7 @@ keywords = ["phd", "doctoral"]
 type = "gepris"
 name = "GEPRIS"
 enabled = true
-queries = ["information systems", "Wirtschaftsinformatik", "digital transformation", "business analytics"]
+queries = ["quantitative marketing", "consumer analytics", "data-driven decision", "information systems", "digital transformation", "business analytics", "Wirtschaftsinformatik", "Digitalisierung"]
 size = 50
 years_back = 2
 
@@ -141,7 +261,7 @@ years_back = 2
 type = "nwo"
 name = "NWO"
 enabled = true
-topics = ["information systems", "digital transformation", "business analytics", "data-driven", "management"]
+topics = ["quantitative marketing", "consumer analytics", "data-driven decision", "information systems", "digital transformation"]
 page_size = 50
 years_back = 3
 
@@ -149,6 +269,6 @@ years_back = 3
 type = "ukri"
 name = "UKRI GtR"
 enabled = true
-queries = ["information systems", "digital transformation", "business analytics"]
+queries = ["quantitative marketing", "consumer analytics", "data-driven decision", "information systems", "business analytics"]
 size = 50
 years_back = 3

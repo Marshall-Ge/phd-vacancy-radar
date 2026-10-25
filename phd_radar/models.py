@@ -21,6 +21,8 @@ class Position:
     description: str = ""
     topics: list[str] = field(default_factory=list)
     methods: list[str] = field(default_factory=list)
+    section: str = ""
+    keywords: list[str] = field(default_factory=list)
     score: float = 0.0
     flags: list[str] = field(default_factory=list)
 
@@ -44,6 +46,8 @@ class Award:
     amount: str = ""
     summary: str = ""
     topics: list[str] = field(default_factory=list)
+    section: str = ""
+    keywords: list[str] = field(default_factory=list)
     score: float = 0.0
 
     def summary_line(self) -> str:

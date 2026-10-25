@@ -78,6 +78,23 @@ def _contains_variant(value: str, text: str) -> bool:
     return value in text
 
 
+def normalize_keyword_text(value: str) -> str:
+    value = (value or "").lower()
+    value = value.replace("‑", "-").replace("–", "-").replace("—", "-")
+    value = re.sub(r"[^\w\s]", " ", value, flags=re.UNICODE)
+    value = value.replace("-", " ")
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def keyword_matches(keyword: str, normalized_text: str) -> bool:
+    needle = normalize_keyword_text(keyword)
+    if not needle:
+        return False
+    if len(needle) <= 3:
+        return re.search(r"(?<![a-z0-9])" + re.escape(needle) + r"(?![a-z0-9])", normalized_text) is not None
+    return needle in normalized_text
+
+
 def match_topics(text: str, topics: list[str]) -> list[str]:
     lowered = " " + normalize(text) + " "
     hits: list[str] = []

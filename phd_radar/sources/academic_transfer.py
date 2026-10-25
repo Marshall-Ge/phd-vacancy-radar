@@ -34,7 +34,7 @@ class AcademicTransferSource(BaseSource):
         domain_n = int(self.options.get("domain") or 10)
         domain_slug = re.compile(
             r"(management|business|econom|financ|organi[sz]ation|information|digital|data|"
-            r"innovat|marketing|strateg|account|supply|operations)",
+            r"innovat|marketing|consumer|analytics|decision|technology|platform|strateg|account|supply|operations)",
             re.I,
         )
         errors: list[str] = []

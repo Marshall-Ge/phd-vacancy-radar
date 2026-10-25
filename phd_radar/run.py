@@ -112,7 +112,7 @@ def run(args: argparse.Namespace) -> int:
 
     log.info("run mode=%s dry_run=%s new_state=%s", args.mode, args.dry_run, is_new)
     batch = collect(cfg)
-    positions, awards = score_all(batch.positions, batch.awards, cfg.profile, now)
+    positions, awards = score_all(batch.positions, batch.awards, cfg.profile, now, cfg.sections)
     positions = [p for p in positions if _active(p, now)]
     awards = [a for a in awards if a.end_year is None or a.end_year >= now.year - 1]
 

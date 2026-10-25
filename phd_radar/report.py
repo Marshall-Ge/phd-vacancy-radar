@@ -1,4 +1,4 @@
-"""邮件内容渲染。"""
+"""邮件与附件渲染（按 A/B/C/D 四个板块）。"""
 
 from __future__ import annotations
 
@@ -6,14 +6,14 @@ import csv
 import html as html_lib
 import io
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 from urllib.parse import quote_plus
+from zoneinfo import ZoneInfo
 
-from .config import Config
+from .config import Config, Section
 from .models import Award, Position
 from .notify import Attachment
 from .state import State
-from .timeutil import human_cst, human_date, human_kst
+from .timeutil import human_cst, human_kst
 
 MANUAL_LINKS = [
     ("EURAXESS", "https://euraxess.ec.europa.eu/jobs/search"),
@@ -32,57 +32,28 @@ def _e(value: str) -> str:
     return html_lib.escape(value or "", quote=True)
 
 
-def _score_color(score: float) -> str:
-    if score >= 8:
-        return "#c0392b"
-    if score >= 6.5:
-        return "#b9770e"
-    return "#4b5563"
-
-
-def _why(pos: Position) -> str:
-    bits = []
-    if pos.topics:
-        bits.append("主题：" + "、".join(pos.topics[:4]))
-    if pos.methods:
-        bits.append("方法：" + "、".join(pos.methods[:3]))
-    if pos.flags:
-        bits.append("；".join(pos.flags[:3]))
-    return " ｜ ".join(bits) if bits else "关键词命中较少，建议人工判断"
-
-
-def _award_why(award: Award) -> str:
-    if award.topics:
-        return "主题命中：" + "、".join(award.topics[:5])
-    return "与关键词弱相关，建议人工判断"
-
-
 def _google(query: str) -> str:
     return "https://www.google.com/search?q=" + quote_plus(query)
 
 
-def _pos_text(pos: Position) -> list[str]:
-    lines = [
-        f"- [{pos.score}] {pos.title}",
-        f"  {pos.summary()}",
-    ]
-    if pos.salary:
-        lines.append(f"  薪资/经费：{pos.salary[:160]}")
-    lines.append(f"  匹配：{_why(pos)}")
-    lines.append(f"  链接：{pos.url}")
-    return lines
+def _sections(cfg: Config) -> list[Section]:
+    return cfg.sections or [Section(key="A", name="A｜项目", keywords=[], priority=1)]
 
 
-def _award_text(award: Award) -> list[str]:
-    lines = [
-        f"- [{award.score}] {award.title}",
-        f"  {award.summary_line()}",
-        f"  匹配：{_award_why(award)}",
-        f"  详情页：{award.url}",
-    ]
-    if award.pi:
-        lines.append(f"  查 PI 招聘：{_google(award.pi + ' PhD position')}")
-    return lines
+def _groups(cfg: Config, positions: list[Position], awards: list[Award]):
+    sections = _sections(cfg)
+    grouped = {s.key: ([], []) for s in sections}
+    for pos in positions:
+        key = pos.section if pos.section in grouped else sections[0].key
+        grouped[key][0].append(pos)
+    for award in awards:
+        key = award.section if award.section in grouped else sections[0].key
+        grouped[key][1].append(award)
+    return [(s, *grouped[s.key]) for s in sections]
+
+
+def _count_text(positions: list[Position], awards: list[Award]) -> str:
+    return f"项目 {len(positions)} 个 · funding {len(awards)} 个"
 
 
 def render_test(cfg: Config, now: datetime) -> tuple[str, str, str]:
@@ -106,31 +77,28 @@ def render_test(cfg: Config, now: datetime) -> tuple[str, str, str]:
 
 def render_alert(cfg: Config, positions: list[Position], awards: list[Award], now: datetime) -> tuple[str, str, str]:
     subject = f"[PhD Radar] 发现 {len(positions) + len(awards)} 个新项目/funding（项目 {len(positions)} / funding {len(awards)}）"
-    text_lines = ["发现新的高匹配项目 / funding", ""]
-    if positions:
-        text_lines.append(f"项目（{len(positions)}）")
-        for pos in positions:
-            text_lines.extend(_pos_text(pos))
-        text_lines.append("")
-    if awards:
-        text_lines.append(f"funding / PI（{len(awards)}）")
-        for award in awards:
-            text_lines.extend(_award_text(award))
-        text_lines.append("")
-    text_lines.append(f"检查时间：{human_cst(now)}")
-
+    text = "\n".join(
+        [
+            "发现新的项目 / funding",
+            "",
+            f"项目 {len(positions)} 个，funding {len(awards)} 个。",
+            "",
+            *_section_text(cfg, positions, awards, detail_limit=3),
+            f"检查时间：{human_cst(now)}",
+        ]
+    )
     html = _wrap(
+        cfg,
         title="发现新项目 / funding",
-        subtitle=f"项目 {len(positions)} 个 · funding / PI {len(awards)} 个",
-        intro="下面这些是刚刚发现、且与你的方向匹配度较高的项目 / funding。项目建议尽快点开确认截止日期；funding 可以顺着 PI 去找团队主页和招聘页。",
+        subtitle=_count_text(positions, awards),
+        intro="下面按 A/B/C/D 四个板块整理；点标题即可跳转原始页面。",
         positions=positions,
         awards=awards,
-        state=None,
         now=now,
+        detail_limit=3,
         footer="本邮件由云端定时任务自动发送；看到合适的项目请尽快申请。",
-        detail_limit=len(positions) + len(awards) + 1,
     )
-    return subject, "\n".join(text_lines), html
+    return subject, text, html
 
 
 def render_digest(
@@ -146,7 +114,7 @@ def render_digest(
     if startup:
         subject = f"[PhD Radar] 监控已启动（基线：{len(positions)} 个项目 / {len(awards)} 个 funding）"
         intro = (
-            "监控已经跑起来了。我已经把当前项目和 funding 项目做了基线记录；"
+            "监控已经跑起来了。我已经把当前项目和 funding 做了基线记录；"
             "之后只要有新项目，会立刻单独发邮件；每 5 天再发一次汇总。"
         )
     elif total == 0:
@@ -154,46 +122,17 @@ def render_digest(
         intro = "过去 5 天没有发现新的匹配项目或 funding。监控仍在正常运行。"
     else:
         subject = f"[PhD Radar] 5 天汇总：{len(positions)} 个新项目，{len(awards)} 个新 funding"
-        intro = (
-            f"这是过去 5 天的新增汇总：项目 {len(positions)} 个（{_country_breakdown(positions)}），"
-            f"funding {len(awards)} 个（{_country_breakdown(awards)}）。"
-            "前几条用详细卡片，其余用紧凑清单，点标题即可跳转。"
-        )
-
-    detail = cfg.monitor.digest_detail_items
-    text_lines = [subject, "", intro, ""]
-    if positions:
-        text_lines.append(f"新项目（{len(positions)}）")
-        for pos in positions[:detail]:
-            text_lines.extend(_pos_text(pos))
-        if len(positions) > detail:
-            text_lines.append(f"其余 {len(positions) - detail} 个项目（紧凑列表）：")
-            for pos in positions[detail:]:
-                text_lines.append(f"- [{pos.score}] {pos.title}｜{pos.institution} · {pos.country}｜{pos.url}")
-        text_lines.append("")
-    if awards:
-        text_lines.append(f"新 funding / PI（{len(awards)}）")
-        for award in awards[:detail]:
-            text_lines.extend(_award_text(award))
-        if len(awards) > detail:
-            text_lines.append(f"其余 {len(awards) - detail} 个 funding（紧凑列表）：")
-            for award in awards[detail:]:
-                text_lines.append(
-                    f"- [{award.score}] {award.title}｜{award.pi or 'PI 未列'} · {award.institution} · {award.country}｜{award.url}"
-                )
-        text_lines.append("")
-    if not total:
-        text_lines.append("- 本期没有新增，稍后继续检查。")
-        text_lines.append("")
+        intro = "这是过去 5 天的新增汇总，按 A/B/C/D 四个板块整理；完整清单见附件。"
 
     next_at = _next_digest(cfg, now)
-    attachment_mode = cfg.monitor.digest_attachment
-    if attachment_mode in {"csv", "html", "both"}:
-        label = {"csv": "CSV", "html": "HTML", "both": "CSV + HTML"}.get(attachment_mode, attachment_mode)
-        text_lines.extend(["", f"完整清单见附件（{label}）。"])
-
-    text_lines.extend(
+    text = "\n".join(
         [
+            subject,
+            "",
+            intro,
+            "",
+            *_section_text(cfg, positions, awards, detail_limit=cfg.monitor.digest_detail_items),
+            *_attachment_text(cfg),
             "手动检索入口：",
             *[f"- {name}: {url}" for name, url in MANUAL_LINKS],
             "",
@@ -202,20 +141,19 @@ def render_digest(
             f"下次汇总：{human_cst(next_at)} 左右",
         ]
     )
-
     html = _wrap(
+        cfg,
         title="5 天汇总" if not startup else "监控已启动",
-        subtitle=f"{len(positions)} 个新项目 · {len(awards)} 个新 funding",
+        subtitle=_count_text(positions, awards),
         intro=intro,
         positions=positions,
         awards=awards,
-        state=state,
         now=now,
-        footer=f"下次汇总约在 {human_cst(next_at)}。手动入口见下方。",
+        detail_limit=cfg.monitor.digest_detail_items,
+        footer=f"下次汇总约在 {human_cst(next_at)}。完整清单见附件。",
         show_manual=True,
-        detail_limit=detail,
     )
-    return subject, "\n".join(text_lines), html
+    return subject, text, html
 
 
 def render_health(cfg: Config, sources, now: datetime) -> tuple[str, str, str]:
@@ -240,46 +178,74 @@ def render_health(cfg: Config, sources, now: datetime) -> tuple[str, str, str]:
     return subject, text, html
 
 
-def _next_digest(cfg: Config, now: datetime) -> datetime:
-    tz = ZoneInfo(cfg.monitor.timezone)
-    local = now.astimezone(tz) + timedelta(days=cfg.monitor.digest_every_days)
-    return local.replace(hour=cfg.monitor.digest_hour, minute=0, second=0, microsecond=0)
+def _attachment_text(cfg: Config) -> list[str]:
+    mode = (cfg.monitor.digest_attachment or "none").lower()
+    if mode == "none":
+        return []
+    label = {"csv": "CSV", "html": "HTML", "both": "CSV + HTML"}.get(mode, mode)
+    return [f"完整清单见附件（{label}）。", ""]
 
 
-def _country_breakdown(items) -> str:
-    from collections import Counter
+def _section_text(
+    cfg: Config, positions: list[Position], awards: list[Award], *, detail_limit: int
+) -> list[str]:
+    lines: list[str] = []
+    for section, sec_positions, sec_awards in _groups(cfg, positions, awards):
+        lines.append(f"【{section.name}】项目 {len(sec_positions)} · funding {len(sec_awards)}")
+        if not sec_positions and not sec_awards:
+            lines.append("- 本期无新增")
+            lines.append("")
+            continue
+        for pos in sec_positions[:detail_limit]:
+            lines.extend(_pos_text(pos))
+        if len(sec_positions) > detail_limit:
+            for pos in sec_positions[detail_limit:]:
+                lines.append(f"- {pos.title}｜{pos.institution} · {pos.country}｜{pos.url}")
+        for award in sec_awards[:detail_limit]:
+            lines.extend(_award_text(award))
+        if len(sec_awards) > detail_limit:
+            for award in sec_awards[detail_limit:]:
+                lines.append(f"- {award.title}｜{award.pi or 'PI 未列'} · {award.institution}｜{award.url}")
+        lines.append("")
+    return lines
 
-    counts = Counter((item.country or "?") for item in items)
-    if not counts:
-        return "无"
-    return " / ".join(f"{code} {count}" for code, count in counts.most_common())
+
+def _pos_text(pos: Position) -> list[str]:
+    lines = [f"- {pos.title}", f"  {pos.summary()}"]
+    if pos.salary:
+        lines.append(f"  薪资/经费：{pos.salary[:160]}")
+    if pos.keywords:
+        lines.append(f"  命中关键词：{'、'.join(pos.keywords[:5])}")
+    lines.append(f"  链接：{pos.url}")
+    return lines
 
 
-def _days(state: State, now: datetime) -> int:
-    if not state.created_at:
-        return 0
-    return max(0, int((now - state.created_at).total_seconds() / 86400))
+def _award_text(award: Award) -> list[str]:
+    lines = [f"- {award.title}", f"  {award.summary_line()}"]
+    if award.keywords:
+        lines.append(f"  命中关键词：{'、'.join(award.keywords[:5])}")
+    lines.append(f"  详情页：{award.url}")
+    if award.pi:
+        lines.append(f"  查 PI 招聘：{_google(award.pi + ' PhD position')}")
+    return lines
 
 
 def _wrap(
+    cfg: Config,
     *,
     title: str,
     subtitle: str,
     intro: str,
     positions: list[Position],
     awards: list[Award],
-    state: State | None,
     now: datetime,
+    detail_limit: int,
     footer: str,
     show_manual: bool = False,
-    detail_limit: int = 8,
 ) -> str:
-    pos_cards = "".join(_pos_card(p) for p in positions[:detail_limit])
-    award_cards = "".join(_award_card(a) for a in awards[:detail_limit])
-    pos_compact = _compact_positions(positions[detail_limit:])
-    award_compact = _compact_awards(awards[detail_limit:])
-    if not positions and not awards:
-        pos_cards = '<p style="color:#6b7280;font-size:14px">本期没有新增项目。</p>'
+    blocks = []
+    for section, sec_positions, sec_awards in _groups(cfg, positions, awards):
+        blocks.append(_section_block(section, sec_positions, sec_awards, detail_limit))
 
     manual = ""
     if show_manual:
@@ -305,11 +271,8 @@ def _wrap(
     <div style="color:#cbd5e1;font-size:13px;margin-top:8px">{_e(subtitle)}</div>
   </div>
   <div style="padding:24px 26px">
-    <p style="margin:0 0 16px;color:#374151;font-size:14px;line-height:1.75">{_e(intro)}</p>
-    {pos_cards}
-    {pos_compact}
-    {award_cards}
-    {award_compact}
+    <p style="margin:0 0 10px;color:#374151;font-size:14px;line-height:1.75">{_e(intro)}</p>
+    {''.join(blocks)}
     {manual}
     <div style="margin-top:20px;padding-top:14px;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;line-height:1.7">
       检查时间：{_e(human_cst(now))}（{_e(human_kst(now))}）<br>
@@ -320,19 +283,76 @@ def _wrap(
 </body></html>"""
 
 
+def _section_block(section: Section, positions: list[Position], awards: list[Award], detail_limit: int) -> str:
+    count = f"项目 {len(positions)} · funding {len(awards)}"
+    if not positions and not awards:
+        body = '<div style="color:#9ca3af;font-size:13px;padding:6px 0">本期无新增</div>'
+    else:
+        body = "".join(_pos_card(p) for p in positions[:detail_limit])
+        body += _compact_positions(positions[detail_limit:])
+        body += "".join(_award_card(a) for a in awards[:detail_limit])
+        body += _compact_awards(awards[detail_limit:])
+    return (
+        '<div style="margin-top:24px">'
+        f'<div style="font-size:16px;font-weight:700;color:#111827;border-left:4px solid #2563eb;padding-left:10px">'
+        f"{_e(section.name)}</div>"
+        f'<div style="font-size:12px;color:#6b7280;margin:4px 0 6px 14px">{_e(count)}</div>'
+        f"{body}</div>"
+    )
+
+
+def _pos_card(pos: Position) -> str:
+    deadline = f"截止 {pos.deadline:%Y-%m-%d}" if pos.deadline else ""
+    salary = pos.salary[:120] if pos.salary else "薪资/经费见原页面"
+    keywords = f"命中关键词：{'、'.join(pos.keywords[:5])}" if pos.keywords else ""
+    return (
+        '<div style="border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin:10px 0">'
+        f'<div style="font-size:12px;color:#6b7280;margin-bottom:5px">{_e(deadline)}</div>'
+        f'<a href="{_e(pos.url)}" style="color:#1d4ed8;text-decoration:none;font-size:15px;font-weight:700;line-height:1.5">{_e(pos.title)}</a>'
+        f'<div style="font-size:13px;color:#4b5563;margin-top:5px">{_e(pos.institution)} · {_e(pos.country)}'
+        + (f" · {_e(pos.city)}" if pos.city else "")
+        + "</div>"
+        f'<div style="font-size:12px;color:#6b7280;margin-top:4px">{_e(salary)}</div>'
+        + (f'<div style="font-size:12px;color:#065f46;margin-top:6px">{_e(keywords)}</div>' if keywords else "")
+        + f'<div style="font-size:12px;color:#374151;margin-top:6px;line-height:1.6">{_e(pos.description[:180])}</div>'
+        "</div>"
+    )
+
+
+def _award_card(award: Award) -> str:
+    years = f"{award.start_year or '?'}–{award.end_year or '?'}"
+    pi_line = f"PI：{award.pi} · " if award.pi else ""
+    keywords = f"命中关键词：{'、'.join(award.keywords[:5])}" if award.keywords else ""
+    links = ""
+    if award.pi:
+        links += (
+            f'<a href="{_e(_google(award.pi + " PhD position"))}" style="color:#1d4ed8;font-size:12px;'
+            'text-decoration:none;margin-right:12px">查 PI 是否招博士 →</a>'
+        )
+    links += f'<a href="{_e(award.url)}" style="color:#1d4ed8;font-size:12px;text-decoration:none">详情页 →</a>'
+    return (
+        '<div style="border:1px solid #e5e7eb;border-left:4px solid #7c3aed;border-radius:10px;padding:14px 16px;margin:10px 0">'
+        f'<div style="font-size:12px;color:#6b7280;margin-bottom:5px">{_e(award.programme)} · {_e(years)}</div>'
+        f'<a href="{_e(award.url)}" style="color:#1d4ed8;text-decoration:none;font-size:15px;font-weight:700;line-height:1.5">{_e(award.title)}</a>'
+        f'<div style="font-size:13px;color:#4b5563;margin-top:5px">{_e(pi_line)}{_e(award.institution)} · {_e(award.country)}</div>'
+        + (f'<div style="font-size:12px;color:#065f46;margin-top:6px">{_e(keywords)}</div>' if keywords else "")
+        + f'<div style="font-size:12px;margin-top:8px">{links}</div>'
+        "</div>"
+    )
+
+
 def _compact_positions(positions: list[Position]) -> str:
     if not positions:
         return ""
     rows = "".join(
         '<div style="padding:6px 0;border-bottom:1px dashed #e5e7eb;font-size:12px;line-height:1.6">'
-        f'<span style="color:#6b7280">[{pos.score}]</span> '
         f'<a href="{_e(pos.url)}" style="color:#1d4ed8;text-decoration:none">{_e(pos.title[:110])}</a>'
         f'<span style="color:#6b7280"> · {_e(pos.institution[:60])} · {_e(pos.country)}</span>'
         "</div>"
         for pos in positions
     )
     return (
-        f'<div style="margin:18px 0 6px;font-size:13px;font-weight:700">其余新增项目（{len(positions)}）</div>'
+        f'<div style="margin:14px 0 6px;font-size:13px;font-weight:700">其余项目（{len(positions)}）</div>'
         f'<div style="border-top:1px solid #e5e7eb">{rows}</div>'
     )
 
@@ -342,128 +362,113 @@ def _compact_awards(awards: list[Award]) -> str:
         return ""
     rows = "".join(
         '<div style="padding:6px 0;border-bottom:1px dashed #e5e7eb;font-size:12px;line-height:1.6">'
-        f'<span style="color:#6b7280">[{award.score}]</span> '
         f'<a href="{_e(award.url)}" style="color:#1d4ed8;text-decoration:none">{_e(award.title[:110])}</a>'
         f'<span style="color:#6b7280"> · {_e(award.pi[:40] or "PI 未列")} · {_e(award.institution[:50])} · {_e(award.country)}</span>'
         "</div>"
         for award in awards
     )
     return (
-        f'<div style="margin:18px 0 6px;font-size:13px;font-weight:700">其余新 funding（{len(awards)}）</div>'
+        f'<div style="margin:14px 0 6px;font-size:13px;font-weight:700">其余 funding（{len(awards)}）</div>'
         f'<div style="border-top:1px solid #e5e7eb">{rows}</div>'
     )
 
 
-def _pos_card(pos: Position) -> str:
-    color = _score_color(pos.score)
-    deadline = f"截止 {pos.deadline:%Y-%m-%d}" if pos.deadline else ""
-    salary = pos.salary[:120] if pos.salary else "薪资/经费见原页面"
-    return (
-        '<div style="border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin:12px 0">'
-        f'<div style="font-size:12px;color:{color};font-weight:700;margin-bottom:5px">匹配 {pos.score}/10 · {_e(deadline)}</div>'
-        f'<a href="{_e(pos.url)}" style="color:#1d4ed8;text-decoration:none;font-size:15px;font-weight:700;line-height:1.5">{_e(pos.title)}</a>'
-        f'<div style="font-size:13px;color:#4b5563;margin-top:5px">{_e(pos.institution)} · {_e(pos.country)}'
-        + (f" · {_e(pos.city)}" if pos.city else "")
-        + "</div>"
-        f'<div style="font-size:12px;color:#6b7280;margin-top:4px">{_e(salary)}</div>'
-        f'<div style="font-size:12px;color:#065f46;margin-top:6px;line-height:1.6">{_e(_why(pos))}</div>'
-        f'<div style="font-size:12px;color:#374151;margin-top:6px;line-height:1.6">{_e(pos.description[:180])}</div>'
-        "</div>"
-    )
+def _next_digest(cfg: Config, now: datetime) -> datetime:
+    tz = ZoneInfo(cfg.monitor.timezone)
+    local = now.astimezone(tz) + timedelta(days=cfg.monitor.digest_every_days)
+    return local.replace(hour=cfg.monitor.digest_hour, minute=0, second=0, microsecond=0)
 
 
-def _award_card(award: Award) -> str:
-    color = _score_color(award.score)
-    years = f"{award.start_year or '?'}–{award.end_year or '?'}"
-    pi_line = f"PI：{award.pi} · " if award.pi else ""
-    links = ""
-    if award.pi:
-        links += (
-            f'<a href="{_e(_google(award.pi + " PhD position"))}" style="color:#1d4ed8;font-size:12px;'
-            'text-decoration:none;margin-right:12px">查 PI 是否招博士 →</a>'
-        )
-    links += (
-        f'<a href="{_e(award.url)}" style="color:#1d4ed8;font-size:12px;text-decoration:none">详情页 →</a>'
-    )
-    return (
-        '<div style="border:1px solid #e5e7eb;border-left:4px solid #7c3aed;border-radius:10px;padding:14px 16px;margin:12px 0">'
-        f'<div style="font-size:12px;color:{color};font-weight:700;margin-bottom:5px">匹配 {award.score}/10 · {_e(award.programme)} · {_e(years)}</div>'
-        f'<a href="{_e(award.url)}" style="color:#1d4ed8;text-decoration:none;font-size:15px;font-weight:700;line-height:1.5">{_e(award.title)}</a>'
-        f'<div style="font-size:13px;color:#4b5563;margin-top:5px">{_e(pi_line)}{_e(award.institution)} · {_e(award.country)}</div>'
-        f'<div style="font-size:12px;color:#065f46;margin-top:6px">{_e(_award_why(award))}</div>'
-        f'<div style="font-size:12px;margin-top:8px">{links}</div>'
-        "</div>"
-    )
+def _days(state: State, now: datetime) -> int:
+    if not state.created_at:
+        return 0
+    return max(0, int((now - state.created_at).total_seconds() / 86400))
 
 
 # ---------------------------------------------------------------------------
-# 汇总附件：CSV / HTML 完整清单
+# 附件：CSV / HTML 完整清单（按四个板块）
 # ---------------------------------------------------------------------------
 CSV_HEADER = [
-    "类型", "匹配分", "标题", "机构", "国家", "城市", "PI", "来源/计划",
-    "截止日期", "发布日期", "薪资/经费", "主题", "方法", "链接", "摘要",
+    "板块", "类型", "标题", "机构", "国家", "城市", "PI", "来源/计划",
+    "截止日期", "发布日期", "薪资/经费", "命中关键词", "链接", "摘要",
 ]
 
 
-def build_csv(positions: list[Position], awards: list[Award]) -> bytes:
+def _ordered_rows(cfg: Config, positions: list[Position], awards: list[Award]):
+    rows = []
+    for section, sec_positions, sec_awards in _groups(cfg, positions, awards):
+        for pos in sec_positions:
+            rows.append(("position", section, pos))
+        for award in sec_awards:
+            rows.append(("award", section, award))
+    return rows
+
+
+def build_csv(cfg: Config, positions: list[Position], awards: list[Award]) -> bytes:
     buffer = io.StringIO()
     writer = csv.writer(buffer)
     writer.writerow(CSV_HEADER)
-    for pos in positions:
-        writer.writerow([
-            "项目", pos.score, pos.title, pos.institution, pos.country, pos.city, "",
-            pos.source, pos.deadline.strftime("%Y-%m-%d") if pos.deadline else "",
-            pos.published.strftime("%Y-%m-%d") if pos.published else "", pos.salary,
-            " / ".join(pos.topics), " / ".join(pos.methods), pos.url,
-            (pos.description or "")[:300],
-        ])
-    for award in awards:
-        writer.writerow([
-            "funding", award.score, award.title, award.institution, award.country, "",
-            award.pi, award.programme, "", "",
-            f"{award.start_year or ''}-{award.end_year or ''}".strip("-"),
-            " / ".join(award.topics), "", award.url, (award.summary or "")[:300],
-        ])
+    for kind, section, item in _ordered_rows(cfg, positions, awards):
+        if kind == "position":
+            pos = item
+            writer.writerow([
+                section.name, "项目", pos.title, pos.institution, pos.country, pos.city, "",
+                pos.source, pos.deadline.strftime("%Y-%m-%d") if pos.deadline else "",
+                pos.published.strftime("%Y-%m-%d") if pos.published else "", pos.salary,
+                " / ".join(pos.keywords), pos.url, (pos.description or "")[:300],
+            ])
+        else:
+            award = item
+            writer.writerow([
+                section.name, "funding", award.title, award.institution, award.country, "",
+                award.pi, award.programme, "", "",
+                f"{award.start_year or ''}-{award.end_year or ''}".strip("-"),
+                " / ".join(award.keywords), award.url, (award.summary or "")[:300],
+            ])
     return buffer.getvalue().encode("utf-8-sig")
 
 
-def build_full_html(positions: list[Position], awards: list[Award], now: datetime) -> bytes:
-    rows = []
-    for pos in positions:
-        rows.append(
-            "<tr>"
-            f"<td>项目</td><td>{pos.score}</td>"
-            f'<td><a href="{_e(pos.url)}">{_e(pos.title)}</a></td>'
-            f"<td>{_e(pos.institution)}</td><td>{_e(pos.country)}</td>"
-            f"<td>{_e(pos.deadline.strftime('%Y-%m-%d') if pos.deadline else '')}</td>"
-            f"<td>{_e(pos.salary)}</td><td>{_e(' / '.join(pos.topics))}</td>"
-            "</tr>"
+def build_full_html(cfg: Config, positions: list[Position], awards: list[Award], now: datetime) -> bytes:
+    blocks = []
+    for section, sec_positions, sec_awards in _groups(cfg, positions, awards):
+        rows = []
+        for pos in sec_positions:
+            rows.append(
+                "<tr>"
+                f"<td>项目</td><td><a href='{_e(pos.url)}'>{_e(pos.title)}</a></td>"
+                f"<td>{_e(pos.institution)}</td><td>{_e(pos.country)}</td>"
+                f"<td>{_e(pos.deadline.strftime('%Y-%m-%d') if pos.deadline else '')}</td>"
+                f"<td>{_e(pos.salary)}</td><td>{_e(' / '.join(pos.keywords))}</td>"
+                "</tr>"
+            )
+        for award in sec_awards:
+            rows.append(
+                "<tr>"
+                f"<td>funding</td><td><a href='{_e(award.url)}'>{_e(award.title)}</a></td>"
+                f"<td>{_e(award.institution)}</td><td>{_e(award.country)}</td>"
+                f"<td>{_e(award.programme)}</td><td>{_e(award.pi)}</td>"
+                f"<td>{_e(' / '.join(award.keywords))}</td>"
+                "</tr>"
+            )
+        body = "".join(rows) or '<tr><td colspan="7" style="color:#9ca3af">本期无新增</td></tr>'
+        blocks.append(
+            f"<h2>{_e(section.name)} <small style='color:#6b7280'>项目 {len(sec_positions)} · funding {len(sec_awards)}</small></h2>"
+            "<table><thead><tr><th>类型</th><th>标题</th><th>机构</th><th>国家</th><th>截止/计划</th><th>薪资/PI</th><th>命中关键词</th></tr></thead>"
+            f"<tbody>{body}</tbody></table>"
         )
-    for award in awards:
-        rows.append(
-            "<tr>"
-            f"<td>funding</td><td>{award.score}</td>"
-            f'<td><a href="{_e(award.url)}">{_e(award.title)}</a></td>'
-            f"<td>{_e(award.institution)}</td><td>{_e(award.country)}</td>"
-            f"<td>{_e(award.pi)}</td><td>{_e(award.programme)}</td>"
-            f"<td>{_e(' / '.join(award.topics))}</td>"
-            "</tr>"
-        )
-    body = "".join(rows) or '<tr><td colspan="8">本期无新增</td></tr>'
     html = f"""<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
 <title>PhD Radar 完整清单 {now:%Y-%m-%d}</title>
 <style>
 body{{font-family:-apple-system,'PingFang SC',sans-serif;padding:24px;color:#111827}}
-h1{{font-size:20px}} .meta{{color:#6b7280;font-size:12px;margin-bottom:16px}}
-table{{border-collapse:collapse;width:100%;font-size:12px}}
+h1{{font-size:20px}} h2{{font-size:16px;margin-top:26px}} small{{font-weight:400}}
+.meta{{color:#6b7280;font-size:12px;margin-bottom:16px}}
+table{{border-collapse:collapse;width:100%;font-size:12px;margin-top:8px}}
 th,td{{border:1px solid #e5e7eb;padding:6px 8px;text-align:left;vertical-align:top}}
 th{{background:#f3f4f6}} a{{color:#1d4ed8;text-decoration:none}}
 </style></head><body>
 <h1>PhD Radar 完整清单</h1>
 <div class="meta">生成时间：{_e(human_cst(now))}｜项目 {len(positions)} 个｜funding {len(awards)} 个</div>
-<table><thead><tr>
-<th>类型</th><th>分数</th><th>标题</th><th>机构</th><th>国家</th><th>截止/PI</th><th>薪资/经费</th><th>主题</th>
-</tr></thead><tbody>{body}</tbody></table>
+{''.join(blocks)}
 </body></html>"""
     return html.encode("utf-8")
 
@@ -478,7 +483,7 @@ def build_attachments(cfg: Config, positions: list[Position], awards: list[Award
         attachments.append(
             Attachment(
                 filename=f"phd-radar-{stamp}.csv",
-                content=build_csv(positions, awards),
+                content=build_csv(cfg, positions, awards),
                 maintype="text",
                 subtype="csv",
             )
@@ -487,7 +492,7 @@ def build_attachments(cfg: Config, positions: list[Position], awards: list[Award
         attachments.append(
             Attachment(
                 filename=f"phd-radar-{stamp}.html",
-                content=build_full_html(positions, awards, now),
+                content=build_full_html(cfg, positions, awards, now),
                 maintype="text",
                 subtype="html",
             )

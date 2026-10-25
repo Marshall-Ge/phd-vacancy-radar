@@ -9,6 +9,14 @@ from pathlib import Path
 
 
 @dataclass
+class Section:
+    key: str
+    name: str
+    keywords: list[str] = field(default_factory=list)
+    priority: int = 99
+
+
+@dataclass
 class Profile:
     name: str = "信息系统 / 管理 / 数据驱动决策"
     topics: list[str] = field(default_factory=list)
@@ -71,6 +79,7 @@ class Config:
     sources: list[SourceConfig]
     base_dir: Path
     state_path: Path
+    sections: list[Section] = field(default_factory=list)
 
 
 def _env(name: str, default: str = "") -> str:
@@ -166,6 +175,23 @@ def load_config(path: str | Path = "config.toml") -> Config:
             )
         )
 
+    sections: list[Section] = []
+    for entry in raw.get("section", []):
+        if not isinstance(entry, dict) or not entry.get("key"):
+            continue
+        sections.append(
+            Section(
+                key=str(entry["key"]),
+                name=str(entry.get("name") or entry["key"]),
+                keywords=[str(x) for x in entry.get("keywords", [])],
+                priority=int(entry.get("priority", 99)),
+            )
+        )
+    if not sections:
+        sections = [
+            Section(key="A", name="目标方向", keywords=profile.topics, priority=1),
+        ]
+
     base_dir = path.resolve().parent
     state_path = Path(_env("STATE_FILE", monitor.state_file))
     if not state_path.is_absolute():
@@ -176,6 +202,7 @@ def load_config(path: str | Path = "config.toml") -> Config:
         monitor=monitor,
         notify=notify,
         sources=sources,
+        sections=sections,
         base_dir=base_dir,
         state_path=state_path,
     )

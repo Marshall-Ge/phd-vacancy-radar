@@ -30,13 +30,15 @@ def sample_data():
 class AttachmentTests(unittest.TestCase):
     def test_csv_has_bom_and_rows(self):
         positions, awards = sample_data()
-        data = build_csv(positions, awards)
+        cfg = load_config("config.toml")
+        data = build_csv(cfg, positions, awards)
         self.assertTrue(data.startswith(b"\xef\xbb\xbf"))
         rows = list(csv.reader(io.StringIO(data.decode("utf-8-sig"))))
-        self.assertEqual(rows[0][0], "类型")
+        self.assertEqual(rows[0][0], "板块")
+        self.assertEqual(rows[0][1], "类型")
         self.assertEqual(len(rows), 3)
-        self.assertEqual(rows[1][0], "项目")
-        self.assertEqual(rows[2][0], "funding")
+        self.assertEqual(rows[1][1], "项目")
+        self.assertEqual(rows[2][1], "funding")
 
     def test_both_attachments(self):
         cfg = load_config("config.toml")
