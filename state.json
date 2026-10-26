@@ -1,14 +1,16 @@
 {
   "version": 1,
   "created_at": "2026-10-25T14:26:53+00:00",
-  "last_check_at": "2026-10-26T05:39:58+00:00",
-  "last_success_at": "2026-10-26T05:39:58+00:00",
+  "last_check_at": "2026-10-26T11:59:40+00:00",
+  "last_success_at": "2026-10-26T11:59:40+00:00",
   "last_digest_at": "2026-10-25T14:28:30+00:00",
-  "last_alert_at": {},
+  "last_alert_at": {
+    "new_items": "2026-10-26T11:59:40+00:00"
+  },
   "stats": {
-    "runs": 3,
+    "runs": 4,
     "digests": 0,
-    "alerts": 0,
+    "alerts": 1,
     "failures": 0
   },
   "seen_positions": {
@@ -27,23 +29,26 @@
     "academictransfer:364658": "2026-10-25T14:28:30+00:00",
     "UCPH:https://employment.ku.dk/all-vacancies?show=167401": "2026-10-25T14:28:30+00:00",
     "jobsacuk:/job/DTE641/phd-in-marketing": "2026-10-25T14:28:30+00:00",
-    "jobsacuk:/job/DSR002/phd-studentship-development-of-a-digital-twin-for-smart-sustainable-steel-section-production": "2026-10-25T14:28:30+00:00"
+    "jobsacuk:/job/DSR002/phd-studentship-development-of-a-digital-twin-for-smart-sustainable-steel-section-production": "2026-10-25T14:28:30+00:00",
+    "academictransfer:365030": "2026-10-26T11:59:40+00:00"
   },
   "seen_awards": {},
-  "alerted": {},
+  "alerted": {
+    "academictransfer:365030": "2026-10-26T11:59:40.991723+00:00"
+  },
   "first_run_done": true,
   "paused": false,
   "last_snapshot": {
-    "positions": 16,
+    "positions": 14,
     "awards": 0,
     "top_positions": [
-      "PhD fellowship(s) in Human-computer Interaction",
       "PhD Programme in Accounting and Finance",
       "PhD Studentships in Business & Management",
       "PhD Position in Entrepreneurship, AI, and Labor Market Disruption",
-      "PhD scholarship in Auditing"
+      "PhD scholarship in Auditing",
+      "PhD scholarship within accounting and artificial intelligence"
     ],
     "top_awards": [],
-    "checked_at": "2026-10-26T05:39:58.883925+00:00"
+    "checked_at": "2026-10-26T11:59:40.991723+00:00"
   }
 }
