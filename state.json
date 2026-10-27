@@ -1,16 +1,16 @@
 {
   "version": 1,
   "created_at": "2026-10-25T14:26:53+00:00",
-  "last_check_at": "2026-10-27T13:50:25+00:00",
-  "last_success_at": "2026-10-27T13:50:25+00:00",
+  "last_check_at": "2026-10-27T19:09:14+00:00",
+  "last_success_at": "2026-10-27T19:09:14+00:00",
   "last_digest_at": "2026-10-25T14:28:30+00:00",
   "last_alert_at": {
-    "new_items": "2026-10-26T18:31:08+00:00"
+    "new_items": "2026-10-27T19:09:14+00:00"
   },
   "stats": {
-    "runs": 7,
+    "runs": 8,
     "digests": 0,
-    "alerts": 2,
+    "alerts": 3,
     "failures": 0
   },
   "seen_positions": {
@@ -31,12 +31,15 @@
     "jobsacuk:/job/DTE641/phd-in-marketing": "2026-10-25T14:28:30+00:00",
     "jobsacuk:/job/DSR002/phd-studentship-development-of-a-digital-twin-for-smart-sustainable-steel-section-production": "2026-10-25T14:28:30+00:00",
     "academictransfer:365030": "2026-10-26T11:59:40+00:00",
-    "jobsacuk:/job/DTK329/phd-studentship-management-and-business-esrc-welsh-graduate-school-for-the-social-sciences-wgsss": "2026-10-26T18:31:08+00:00"
+    "jobsacuk:/job/DTK329/phd-studentship-management-and-business-esrc-welsh-graduate-school-for-the-social-sciences-wgsss": "2026-10-26T18:31:08+00:00",
+    "academictransfer:365078": "2026-10-27T19:09:14+00:00",
+    "jobsacuk:/job/DTK939/phd-studentship-beyond-pilots-de-risking-the-scale-up-of-artificial-intelligence-in-digitally-enabled-circular-supply-chains": "2026-10-27T19:09:14+00:00"
   },
   "seen_awards": {},
   "alerted": {
     "academictransfer:365030": "2026-10-26T11:59:40.991723+00:00",
-    "jobsacuk:/job/DTK329/phd-studentship-management-and-business-esrc-welsh-graduate-school-for-the-social-sciences-wgsss": "2026-10-26T18:31:08.998844+00:00"
+    "jobsacuk:/job/DTK329/phd-studentship-management-and-business-esrc-welsh-graduate-school-for-the-social-sciences-wgsss": "2026-10-26T18:31:08.998844+00:00",
+    "academictransfer:365078": "2026-10-27T19:09:14.655896+00:00"
   },
   "first_run_done": true,
   "paused": false,
@@ -44,13 +47,13 @@
     "positions": 15,
     "awards": 0,
     "top_positions": [
+      "PhD in Process-Aware Information Systems for Circular Care Pathways",
       "PhD Studentship: Management and Business: ESRC Welsh Graduate School for the Social Sciences (WGSSS)",
       "PhD Programme in Accounting and Finance",
       "PhD Studentships in Business & Management",
-      "PhD Position in Entrepreneurship, AI, and Labor Market Disruption",
-      "PhD scholarship in Auditing"
+      "PhD Position in Entrepreneurship, AI, and Labor Market Disruption"
     ],
     "top_awards": [],
-    "checked_at": "2026-10-27T13:50:25.179023+00:00"
+    "checked_at": "2026-10-27T19:09:14.655896+00:00"
   }
 }
