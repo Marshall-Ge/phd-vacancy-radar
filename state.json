@@ -1,14 +1,14 @@
 {
   "version": 1,
   "created_at": "2026-10-25T14:26:53+00:00",
-  "last_check_at": "2026-10-28T10:14:02+00:00",
-  "last_success_at": "2026-10-28T10:14:02+00:00",
+  "last_check_at": "2026-10-28T16:55:39+00:00",
+  "last_success_at": "2026-10-28T16:55:39+00:00",
   "last_digest_at": "2026-10-25T14:28:30+00:00",
   "last_alert_at": {
     "new_items": "2026-10-27T19:09:14+00:00"
   },
   "stats": {
-    "runs": 10,
+    "runs": 11,
     "digests": 0,
     "alerts": 3,
     "failures": 0
@@ -51,10 +51,10 @@
       "PhD in Process-Aware Information Systems for Circular Care Pathways",
       "PhD Studentship: Management and Business: ESRC Welsh Graduate School for the Social Sciences (WGSSS)",
       "PhD Programme in Accounting and Finance",
-      "PhD Studentships in Business & Management",
-      "PhD Position in Entrepreneurship, AI, and Labor Market Disruption"
+      "PhD Position in Entrepreneurship, AI, and Labor Market Disruption",
+      "PhD scholarship in Auditing"
     ],
     "top_awards": [],
-    "checked_at": "2026-10-28T10:14:02.131797+00:00"
+    "checked_at": "2026-10-28T16:55:39.903581+00:00"
   }
 }
