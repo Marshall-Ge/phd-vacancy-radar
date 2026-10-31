@@ -1,15 +1,15 @@
 {
   "version": 1,
   "created_at": "2026-10-25T14:26:53+00:00",
-  "last_check_at": "2026-10-30T16:54:59+00:00",
-  "last_success_at": "2026-10-30T16:54:59+00:00",
-  "last_digest_at": "2026-10-25T14:28:30+00:00",
+  "last_check_at": "2026-10-31T01:18:49+00:00",
+  "last_success_at": "2026-10-31T01:18:49+00:00",
+  "last_digest_at": "2026-10-31T01:18:49+00:00",
   "last_alert_at": {
     "new_items": "2026-10-27T19:09:14+00:00"
   },
   "stats": {
-    "runs": 17,
-    "digests": 0,
+    "runs": 18,
+    "digests": 1,
     "alerts": 3,
     "failures": 0
   },
@@ -56,6 +56,6 @@
       "PhD scholarship within accounting and artificial intelligence"
     ],
     "top_awards": [],
-    "checked_at": "2026-10-30T16:54:59.842097+00:00"
+    "checked_at": "2026-10-31T01:18:49.522953+00:00"
   }
 }
