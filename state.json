@@ -1,16 +1,16 @@
 {
   "version": 1,
   "created_at": "2026-10-25T14:26:53+00:00",
-  "last_check_at": "2026-11-02T07:00:31+00:00",
-  "last_success_at": "2026-11-02T07:00:31+00:00",
+  "last_check_at": "2026-11-02T17:37:53+00:00",
+  "last_success_at": "2026-11-02T17:37:53+00:00",
   "last_digest_at": "2026-10-31T01:18:49+00:00",
   "last_alert_at": {
-    "new_items": "2026-10-27T19:09:14+00:00"
+    "new_items": "2026-11-02T17:37:53+00:00"
   },
   "stats": {
-    "runs": 25,
+    "runs": 26,
     "digests": 1,
-    "alerts": 3,
+    "alerts": 4,
     "failures": 0
   },
   "seen_positions": {
@@ -35,27 +35,32 @@
     "academictransfer:365078": "2026-10-27T19:09:14+00:00",
     "jobsacuk:/job/DTK939/phd-studentship-beyond-pilots-de-risking-the-scale-up-of-artificial-intelligence-in-digitally-enabled-circular-supply-chains": "2026-10-27T19:09:14+00:00",
     "jobsacuk:/job/DTL076/phd-studentship-digital-twinning-for-post-mining-environmental-transitions": "2026-10-28T10:14:02+00:00",
-    "jobsacuk:/job/DTL830/phd-studentship-digital-state-capitalism-in-international-business-geopolitics-digital-sovereignty-and-techno-nationalism": "2026-10-29T23:51:57+00:00"
+    "jobsacuk:/job/DTL830/phd-studentship-digital-state-capitalism-in-international-business-geopolitics-digital-sovereignty-and-techno-nationalism": "2026-10-29T23:51:57+00:00",
+    "jobsacuk:/job/DTJ705/four-year-fully-funded-graduate-teaching-fellowships-for-accounting-and-finance-phd-students": "2026-11-02T17:37:53+00:00",
+    "jobsacuk:/job/DTJ719/four-year-fully-funded-graduate-teaching-fellowships-for-economics-phd-students": "2026-11-02T17:37:53+00:00",
+    "jobsacuk:/job/DTJ720/four-year-fully-funded-graduate-teaching-fellowships-for-management-phd-students": "2026-11-02T17:37:53+00:00"
   },
   "seen_awards": {},
   "alerted": {
     "academictransfer:365030": "2026-10-26T11:59:40.991723+00:00",
     "jobsacuk:/job/DTK329/phd-studentship-management-and-business-esrc-welsh-graduate-school-for-the-social-sciences-wgsss": "2026-10-26T18:31:08.998844+00:00",
-    "academictransfer:365078": "2026-10-27T19:09:14.655896+00:00"
+    "academictransfer:365078": "2026-10-27T19:09:14.655896+00:00",
+    "jobsacuk:/job/DTJ705/four-year-fully-funded-graduate-teaching-fellowships-for-accounting-and-finance-phd-students": "2026-11-02T17:37:53.368955+00:00",
+    "jobsacuk:/job/DTJ719/four-year-fully-funded-graduate-teaching-fellowships-for-economics-phd-students": "2026-11-02T17:37:53.368955+00:00"
   },
   "first_run_done": true,
   "paused": false,
   "last_snapshot": {
-    "positions": 16,
+    "positions": 19,
     "awards": 0,
     "top_positions": [
       "PhD in Process-Aware Information Systems for Circular Care Pathways",
+      "Four year fully funded Graduate Teaching Fellowships for Accounting and Finance PhD students",
       "PhD Position in Entrepreneurship, AI, and Labor Market Disruption",
       "PhD scholarship in Auditing",
-      "PhD scholarship within accounting and artificial intelligence",
-      "PhD Programme in Accounting, Economics, Finance and Management"
+      "PhD scholarship within accounting and artificial intelligence"
     ],
     "top_awards": [],
-    "checked_at": "2026-11-02T07:00:31.042784+00:00"
+    "checked_at": "2026-11-02T17:37:53.368955+00:00"
   }
 }
