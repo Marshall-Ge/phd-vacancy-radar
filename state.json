@@ -1,16 +1,16 @@
 {
   "version": 1,
   "created_at": "2026-10-25T14:26:53+00:00",
-  "last_check_at": "2026-11-05T18:25:14+00:00",
-  "last_success_at": "2026-11-05T18:25:14+00:00",
+  "last_check_at": "2026-11-19T17:52:07+00:00",
+  "last_success_at": "2026-11-19T17:52:07+00:00",
   "last_digest_at": "2026-11-05T02:59:07+00:00",
   "last_alert_at": {
-    "new_items": "2026-11-05T18:25:14+00:00"
+    "new_items": "2026-11-19T17:52:07+00:00"
   },
   "stats": {
-    "runs": 35,
+    "runs": 36,
     "digests": 2,
-    "alerts": 6,
+    "alerts": 7,
     "failures": 0
   },
   "seen_positions": {
@@ -46,7 +46,13 @@
     "academictransfer:365359": "2026-11-05T18:25:14+00:00",
     "academictransfer:365355": "2026-11-05T18:25:14+00:00",
     "academictransfer:365353": "2026-11-05T18:25:14+00:00",
-    "academictransfer:365360": "2026-11-05T18:25:14+00:00"
+    "academictransfer:365360": "2026-11-05T18:25:14+00:00",
+    "academictransfer:365418": "2026-11-19T17:52:07+00:00",
+    "jobsacuk:/job/DTO389/2-phd-positions-in-business-administration-entrepreneurship": "2026-11-19T17:52:07+00:00",
+    "jobsacuk:/job/DTP311/phd-studentship-in-finance": "2026-11-19T17:52:07+00:00",
+    "academictransfer:365744": "2026-11-19T17:52:07+00:00",
+    "UvA:https://werkenbij.uva.nl/en/vacancies/phd-position-in-computational-platforms-for-advanced-motion-control-netherlands-15636": "2026-11-19T17:52:07+00:00",
+    "jobsacuk:/job/DTQ467/phd-studentship-digital-twinning-for-post-mining-environmental-transitions": "2026-11-19T17:52:07+00:00"
   },
   "seen_awards": {},
   "alerted": {
@@ -61,21 +67,25 @@
     "academictransfer:365359": "2026-11-05T18:25:14.554372+00:00",
     "academictransfer:365355": "2026-11-05T18:25:14.554372+00:00",
     "academictransfer:365353": "2026-11-05T18:25:14.554372+00:00",
-    "academictransfer:365360": "2026-11-05T18:25:14.554372+00:00"
+    "academictransfer:365360": "2026-11-05T18:25:14.554372+00:00",
+    "academictransfer:365418": "2026-11-19T17:52:07.443668+00:00",
+    "jobsacuk:/job/DTO389/2-phd-positions-in-business-administration-entrepreneurship": "2026-11-19T17:52:07.443668+00:00",
+    "jobsacuk:/job/DTP311/phd-studentship-in-finance": "2026-11-19T17:52:07.443668+00:00",
+    "academictransfer:365744": "2026-11-19T17:52:07.443668+00:00"
   },
   "first_run_done": true,
   "paused": false,
   "last_snapshot": {
-    "positions": 27,
+    "positions": 28,
     "awards": 0,
     "top_positions": [
       "Fully funded PhD Positions in Business Processes, Logistics & Information Systems at Rotterdam School of Management, Erasmus University (RSM)",
       "Fully funded PhD positions in Marketing Management at Rotterdam School of Management, Erasmus University (RSM)",
-      "PhD in Process-Aware Information Systems for Circular Care Pathways",
-      "Four year fully funded Graduate Teaching Fellowships for Accounting and Finance PhD students",
-      "Fully funded PhD Positions in Business and Management at Rotterdam School of Management, Erasmus University (RSM)"
+      "PhD fellowship(s) in Human-computer Interaction",
+      "PhD Position in Computational Platforms for Advanced Motion Control",
+      "Four year fully funded Graduate Teaching Fellowships for Accounting and Finance PhD students"
     ],
     "top_awards": [],
-    "checked_at": "2026-11-05T18:25:14.554372+00:00"
+    "checked_at": "2026-11-19T17:52:07.443668+00:00"
   }
 }
