@@ -1,15 +1,15 @@
 {
   "version": 1,
   "created_at": "2026-10-25T14:26:53+00:00",
-  "last_check_at": "2026-11-20T00:05:28+00:00",
-  "last_success_at": "2026-11-20T00:05:28+00:00",
-  "last_digest_at": "2026-11-05T02:59:07+00:00",
+  "last_check_at": "2026-11-20T07:56:10+00:00",
+  "last_success_at": "2026-11-20T07:56:10+00:00",
+  "last_digest_at": "2026-11-20T07:56:10+00:00",
   "last_alert_at": {
     "new_items": "2026-11-19T17:52:07+00:00"
   },
   "stats": {
-    "runs": 37,
-    "digests": 2,
+    "runs": 38,
+    "digests": 3,
     "alerts": 7,
     "failures": 0
   },
@@ -52,7 +52,8 @@
     "jobsacuk:/job/DTP311/phd-studentship-in-finance": "2026-11-19T17:52:07+00:00",
     "academictransfer:365744": "2026-11-19T17:52:07+00:00",
     "UvA:https://werkenbij.uva.nl/en/vacancies/phd-position-in-computational-platforms-for-advanced-motion-control-netherlands-15636": "2026-11-19T17:52:07+00:00",
-    "jobsacuk:/job/DTQ467/phd-studentship-digital-twinning-for-post-mining-environmental-transitions": "2026-11-19T17:52:07+00:00"
+    "jobsacuk:/job/DTQ467/phd-studentship-digital-twinning-for-post-mining-environmental-transitions": "2026-11-19T17:52:07+00:00",
+    "jobsacuk:/job/DTS383/phd-studentship-development-of-a-digital-twin-for-smart-sustainable-steel-section-production": "2026-11-20T07:56:10+00:00"
   },
   "seen_awards": {},
   "alerted": {
@@ -86,6 +87,6 @@
       "Four year fully funded Graduate Teaching Fellowships for Accounting and Finance PhD students"
     ],
     "top_awards": [],
-    "checked_at": "2026-11-20T00:05:28.520322+00:00"
+    "checked_at": "2026-11-20T07:56:10.272712+00:00"
   }
 }
